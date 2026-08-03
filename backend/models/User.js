@@ -1,0 +1,53 @@
+const mongoose=require("mongoose")
+const {Schema}=mongoose
+
+const userSchema=new Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    email:{
+        type:String,
+        unique:true,
+        required:true
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    isAdmin:{
+        type:Boolean,
+        default:false
+    },
+    isGuest:{
+        type:Boolean,
+        default:false
+    },
+    authProvider:{
+        type:String,
+        enum:['local','google'],
+        default:'local'
+    },
+    googleId:{
+        type:String,
+        default:null
+    },
+    walletBalance:{
+        type:Number,
+        default:0
+    },
+    loyaltyPoints:{
+        type:Number,
+        default:0
+    },
+    wishlistShareId:{
+        type:String,
+        default:null
+    }
+},{timestamps:true})
+
+module.exports=mongoose.model("User",userSchema)
