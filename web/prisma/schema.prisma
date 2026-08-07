@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            BigInt    @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password      String
+  isVerified    Boolean   @default(true) @map("is_verified")
+  isAdmin       Boolean   @default(false) @map("is_admin")
+  isGuest       Boolean   @default(false) @map("is_guest")
+  walletBalance Decimal   @default(0) @map("wallet_balance") @db.Decimal(10, 2)
+  loyaltyPoints Int       @default(0) @map("loyalty_points")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id   BigInt @id @default(autoincrement())
+  name String
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Brand {
+  id   BigInt @id @default(autoincrement())
+  name String
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id                 BigInt   @id @default(autoincrement())
+  title              String
+  description        String
+  price              Decimal  @db.Decimal(10, 2)
+  discountPercentage Decimal  @default(0) @map("discount_percentage") @db.Decimal(5, 2)
+  categoryId         BigInt   @map("category_id")
+  brandId            BigInt   @map("brand_id")
+  stockQuantity      Int      @map("stock_quantity")
+  thumbnail          String
+  images             String[]
+  isDeleted          Boolean  @default(false) @map("is_deleted")
+  // Garment type used for ruff.in-style tiles/filters — T-Shirts, Shorts, Shirts, Jeans, etc.
+  productType        String?  @map("product_type")
+  variants           Json     @default("[]")
+  availableSizes     String[] @default([]) @map("available_sizes")
+  availableColors    Json     @default("[]") @map("available_colors")
+  averageRating      Decimal  @default(0) @map("average_rating") @db.Decimal(2, 1)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  category  Category   @relation(fields: [categoryId], references: [id])
+  brand     Brand      @relation(fields: [brandId], references: [id])
+  cartItems CartItem[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([isDeleted])
+  @@map("products")
+}
+
+model CartItem {
+  id            BigInt   @id @default(autoincrement())
+  userId        BigInt   @map("user_id")
+  productId     BigInt   @map("product_id")
+  quantity      Int      @default(1)
+  reminderSent  Boolean  @default(false) @map("reminder_sent")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("cart_items")
+}
+
+model Order {
+  id                  BigInt   @id @default(autoincrement())
+  userId              BigInt   @map("user_id")
+  item                Json
+  address             Json
+  status              String   @default("Pending")
+  paymentMode         String   @map("payment_mode")
+  paymentStatus       String   @default("unpaid") @map("payment_status")
+  paymentIntentId     String?  @map("payment_intent_id")
+  total               Decimal  @db.Decimal(10, 2)
+  couponCode          String?  @map("coupon_code")
+  discountAmount      Decimal  @default(0) @map("discount_amount") @db.Decimal(10, 2)
+  walletAmountUsed    Decimal  @default(0) @map("wallet_amount_used") @db.Decimal(10, 2)
+  loyaltyPointsEarned Int      @default(0) @map("loyalty_points_earned")
+  statusHistory       Json     @default("[]") @map("status_history")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("orders")
+}
