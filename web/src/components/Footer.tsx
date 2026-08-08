@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SocialIcon } from "@/components/SocialIcon";
+import { BrandMark } from "@/components/BrandMark";
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -32,15 +33,20 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 bg-black text-white">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 py-14 md:grid-cols-4">
+    <footer className="relative mt-16 overflow-hidden bg-brand-navy text-white">
+      <BrandMark
+        size={260}
+        className="pointer-events-none absolute -bottom-16 -right-16 text-white opacity-5"
+      />
+
+      <div className="relative mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 py-14 md:grid-cols-4">
         {COLUMNS.map((column) => (
           <div key={column.title}>
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wide">{column.title}</h3>
             <ul className="space-y-2 text-sm text-neutral-300">
               {column.links.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="hover:text-white">
+                  <Link href={link.href} className="hover:text-brand-gold">
                     {link.label}
                   </Link>
                 </li>
@@ -62,7 +68,7 @@ export function Footer() {
               placeholder="Your email address"
               className="w-full bg-transparent text-sm placeholder:text-neutral-500 focus:outline-none"
             />
-            <button type="submit" aria-label="Subscribe" className="text-white">
+            <button type="submit" aria-label="Subscribe" className="text-brand-gold">
               →
             </button>
           </form>
@@ -76,8 +82,8 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-neutral-800 px-4 py-4 text-center text-xs text-neutral-500">
-        © {new Date().getFullYear()} StyleRoute. All rights reserved.
+      <div className="relative border-t border-white/10 px-4 py-4 text-center text-xs text-neutral-400">
+        © {new Date().getFullYear()} Style Route. All rights reserved.
       </div>
     </footer>
   );
