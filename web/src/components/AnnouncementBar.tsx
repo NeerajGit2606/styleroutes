@@ -7,9 +7,12 @@ const MESSAGES = [
 export function AnnouncementBar() {
   return (
     <div className="bg-brand-navy text-white text-xs tracking-wide">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 overflow-x-auto px-4 py-2">
-        {MESSAGES.map((message) => (
-          <span key={message} className="whitespace-nowrap">
+      <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 overflow-x-auto px-4 py-2 text-center">
+        {MESSAGES.map((message, index) => (
+          <span
+            key={message}
+            className={`whitespace-nowrap ${index === 0 ? "" : "hidden md:inline"}`}
+          >
             {message}
           </span>
         ))}
