@@ -44,6 +44,7 @@ const money = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 export default function Home() {
   const [active, setActive] = useState("All"); const [cart, setCart] = useState<Product[]>([]); const [bagOpen, setBagOpen] = useState(false); const [liked, setLiked] = useState<number[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -51,6 +52,37 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(id);
   }, []);
+
+  // Load saved cart/wishlist once, when the page first mounts in the browser.
+  // Deliberately not using a useState lazy-initializer here: that would run
+  // during server-side render too (where localStorage doesn't exist), and
+  // even on the client it would make the very first render already show
+  // saved data while the server-rendered HTML showed none — a hydration
+  // mismatch. Reading in an effect guarantees this only runs after mount.
+  useEffect(() => {
+    const savedCart = localStorage.getItem("styleroute_cart");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (savedCart) setCart(JSON.parse(savedCart));
+
+    const savedLiked = localStorage.getItem("styleroute_wishlist");
+    if (savedLiked) setLiked(JSON.parse(savedLiked));
+
+    setHasLoadedStorage(true);
+  }, []);
+
+  // Re-save to localStorage every time the cart changes — but not before the
+  // load effect above has actually run, otherwise this fires first (with the
+  // still-empty initial cart) and wipes out whatever was saved from last time.
+  useEffect(() => {
+    if (!hasLoadedStorage) return;
+    localStorage.setItem("styleroute_cart", JSON.stringify(cart));
+  }, [cart, hasLoadedStorage]);
+
+  // Same guard for the wishlist.
+  useEffect(() => {
+    if (!hasLoadedStorage) return;
+    localStorage.setItem("styleroute_wishlist", JSON.stringify(liked));
+  }, [liked, hasLoadedStorage]);
 
   const shown = useMemo(() => active === "All" ? PRODUCTS : PRODUCTS.filter((item) => item.category === active), [active]);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
