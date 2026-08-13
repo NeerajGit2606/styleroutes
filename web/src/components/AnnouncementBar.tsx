@@ -5,15 +5,15 @@ const MESSAGES = [
 ];
 
 export function AnnouncementBar() {
+  const track = [...MESSAGES, ...MESSAGES];
+
   return (
-    <div className="bg-brand-navy text-white text-xs tracking-wide">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-8 overflow-x-auto px-4 py-2 text-center">
-        {MESSAGES.map((message, index) => (
-          <span
-            key={message}
-            className={`whitespace-nowrap ${index === 0 ? "" : "hidden md:inline"}`}
-          >
+    <div className="overflow-hidden bg-brand-navy text-white text-xs tracking-wide">
+      <div className="flex w-max animate-[marquee_22s_linear_infinite] py-2">
+        {track.map((message, index) => (
+          <span key={index} className="flex items-center whitespace-nowrap">
             {message}
+            <span className="mx-8 text-brand-gold">•</span>
           </span>
         ))}
       </div>

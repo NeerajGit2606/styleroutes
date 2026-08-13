@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ArrowRight, Heart, ShoppingBag, Star, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Product = { id: number; name: string; category: string; price: number; oldPrice?: number; image: string; badge?: string };
 const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`;
@@ -15,15 +15,81 @@ const PRODUCTS: Product[] = [
 const CATEGORIES = [
   ["T-Shirts", "photo-1519457431-44ccd64a579b"], ["Shirts", "photo-1519238263530-99bdd11df2ea"], ["Shorts", "photo-1519085360753-af0119f7cbe7"], ["Denim", "photo-1542272604-787c3835535d"],
 ];
+type Slide = { eyebrow: string; titleLines: [string, string]; body: string; cta: string; image: string };
+const SLIDES: Slide[] = [
+  {
+    eyebrow: "SUMMER '26",
+    titleLines: ["Built for", "big days."],
+    body: "Comfort-first kidswear with serious personality. Made for the sprint, the spill, and every story in between.",
+    cta: "Shop new arrivals",
+    image: photo("photo-1522771930-78848d9293e8"),
+  },
+  {
+    eyebrow: "JUST DROPPED",
+    titleLines: ["Play hard.", "Wash easy."],
+    body: "Durable fabrics that survive playground days and still look sharp for the family photo.",
+    cta: "Explore new arrivals",
+    image: photo("photo-1516627145497-ae6968895b74"),
+  },
+  {
+    eyebrow: "THE EDIT",
+    titleLines: ["Dressed up,", "not dressed down."],
+    body: "Smart-casual pieces that go from the school run to family outings without a wardrobe change.",
+    cta: "Shop the edit",
+    image: photo("photo-1491013516836-7db643ee7e29"),
+  },
+];
 const money = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 export default function Home() {
   const [active, setActive] = useState("All"); const [cart, setCart] = useState<Product[]>([]); const [bagOpen, setBagOpen] = useState(false); const [liked, setLiked] = useState<number[]>([]);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActiveSlide((current) => (current + 1) % SLIDES.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   const shown = useMemo(() => active === "All" ? PRODUCTS : PRODUCTS.filter((item) => item.category === active), [active]);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const add = (product: Product) => { setCart((items) => [...items, product]); setBagOpen(true); };
   return <div className="overflow-hidden">
-    <section className="relative min-h-[650px] bg-neutral-900"><Image src={photo("photo-1522771930-78848d9293e8")} alt="StyleRoute summer collection" fill priority sizes="100vw" className="object-cover" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" /><div className="relative mx-auto flex min-h-[650px] max-w-7xl items-end px-5 pb-16 md:items-center md:pb-0"><div className="max-w-xl text-white"><p className="mb-5 flex items-center gap-2 text-xs font-bold tracking-[.24em]"><span className="h-px w-10 bg-brand-gold" /> SUMMER ’26</p><h1 className="text-5xl font-black uppercase leading-[.88] tracking-[-.06em] sm:text-7xl">Built for<br />big days.</h1><p className="mt-6 max-w-md text-base leading-7 text-white/85">Comfort-first kidswear with serious personality. Made for the sprint, the spill, and every story in between.</p><a href="#new-arrivals" className="mt-8 inline-flex items-center gap-3 bg-brand-gold px-6 py-4 text-sm font-black uppercase tracking-wider text-black hover:bg-white">Shop new arrivals <ArrowRight size={17} /></a></div></div><div className="absolute bottom-0 right-5 hidden bg-white px-6 py-4 text-xs font-bold uppercase tracking-widest md:block">Free shipping on orders over ₹999</div></section>
+    <section className="relative min-h-[650px] overflow-hidden bg-neutral-900">
+      <div
+        className="flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+      >
+        {SLIDES.map((slide, index) => (
+          <div key={slide.eyebrow} className="relative min-h-[650px] w-full shrink-0">
+            <Image src={slide.image} alt={slide.titleLines.join(" ")} fill priority={index === 0} sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
+            <div className="relative mx-auto flex min-h-[650px] max-w-7xl items-end px-5 pb-16 md:items-center md:pb-0">
+              <div className="max-w-xl text-white">
+                <p className="mb-5 flex items-center gap-2 text-xs font-bold tracking-[.24em]"><span className="h-px w-10 bg-brand-gold" /> {slide.eyebrow}</p>
+                <h1 className="text-5xl font-black uppercase leading-[.88] tracking-[-.06em] sm:text-7xl">{slide.titleLines[0]}<br />{slide.titleLines[1]}</h1>
+                <p className="mt-6 max-w-md text-base leading-7 text-white/85">{slide.body}</p>
+                <a href="#new-arrivals" className="mt-8 inline-flex items-center gap-3 bg-brand-gold px-6 py-4 text-sm font-black uppercase tracking-wider text-black hover:bg-white">{slide.cta} <ArrowRight size={17} /></a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="absolute bottom-0 right-5 hidden bg-white px-6 py-4 text-xs font-bold uppercase tracking-widest md:block">Free shipping on orders over ₹999</div>
+
+      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+        {SLIDES.map((slide, index) => (
+          <button
+            key={slide.eyebrow}
+            onClick={() => setActiveSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
+            className={`h-2 rounded-full transition-all duration-300 ${index === activeSlide ? "w-6 bg-brand-gold" : "w-2 bg-white/60"}`}
+          />
+        ))}
+      </div>
+    </section>
     <section className="border-b border-neutral-200 bg-white py-6"><div className="mx-auto grid max-w-7xl gap-5 px-5 text-center sm:grid-cols-3">{["Made for movement", "Soft on skin", "Easy 7-day exchange"].map((item, index) => <div key={item} className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest"><span className="grid h-7 w-7 place-items-center rounded-full bg-brand-gold text-[11px]">0{index + 1}</span>{item}</div>)}</div></section>
     <section className="bg-brand-cream py-20"><div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:grid-cols-[1fr_1.2fr]"><div className="relative mx-auto aspect-[7/10] w-full max-w-sm overflow-hidden rounded-sm shadow-xl md:mx-0"><Image src="/brand/hero-lion.jpeg" alt="Style Route campaign — comfort with character" fill sizes="(max-width: 768px) 90vw, 420px" className="object-cover" /></div><div><p className="text-xs font-bold tracking-[.2em] text-brand-gold">THE CAMPAIGN</p><h2 className="mt-2 text-4xl font-black uppercase leading-none tracking-[-.05em]">Comfort,<br />with character.</h2><p className="mt-5 max-w-md leading-7 text-neutral-600">From the studio to the schoolyard, Style Route pieces are built to keep up, look sharp, and feel like home.</p><a href="#new-arrivals" className="mt-6 inline-flex w-fit items-center gap-2 bg-brand-navy px-6 py-4 text-sm font-black uppercase tracking-wider text-white hover:bg-black">Explore the collection <ArrowRight size={16} /></a></div></div></section>
     <section className="mx-auto max-w-7xl px-5 py-20"><div className="mb-9"><p className="text-xs font-bold tracking-[.2em] text-brand-gold">DRESS THE MOOD</p><h2 className="mt-2 text-3xl font-black uppercase tracking-[-.04em]">Shop by category</h2></div><div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{CATEGORIES.map(([name, image]) => <button key={name} onClick={() => { setActive(name === "Denim" ? "Bottoms" : name); document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }); }} className="group relative aspect-[.78] overflow-hidden text-left"><Image src={photo(image)} alt={name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" /><span className="absolute bottom-4 left-4 text-xl font-black uppercase text-white">{name}</span></button>)}</div></section>
