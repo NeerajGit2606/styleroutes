@@ -1,20 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, Heart, ShoppingBag, Star, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { CATEGORIES, PRODUCTS, photo, money } from "@/lib/products";
+import { useCart } from "@/context/CartContext";
 
-type Product = { id: number; name: string; category: string; price: number; oldPrice?: number; image: string; badge?: string };
-const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`;
-const PRODUCTS: Product[] = [
-  { id: 1, name: "Skyline Graphic Tee", category: "T-Shirts", price: 899, oldPrice: 1199, badge: "NEW", image: photo("photo-1503944583220-79d8926ad5e2") },
-  { id: 2, name: "Weekend Cargo Shorts", category: "Shorts", price: 1199, image: photo("photo-1519238263530-99bdd11df2ea") },
-  { id: 3, name: "Indigo Club Overshirt", category: "Shirts", price: 1499, oldPrice: 1799, badge: "BESTSELLER", image: photo("photo-1485968579580-b6d095142e6e") },
-  { id: 4, name: "Easy Move Joggers", category: "Bottoms", price: 1299, image: photo("photo-1515886657613-9f3515b0c78f") },
-];
-const CATEGORIES = [
-  ["T-Shirts", "photo-1519457431-44ccd64a579b"], ["Shirts", "photo-1519238263530-99bdd11df2ea"], ["Shorts", "photo-1519085360753-af0119f7cbe7"], ["Denim", "photo-1542272604-787c3835535d"],
-];
 type Slide = { eyebrow: string; titleLines: [string, string]; body: string; cta: string; image: string };
 const SLIDES: Slide[] = [
   {
@@ -39,12 +31,11 @@ const SLIDES: Slide[] = [
     image: photo("photo-1491013516836-7db643ee7e29"),
   },
 ];
-const money = (amount: number) => `₹${amount.toLocaleString("en-IN")}`;
 
 export default function Home() {
-  const [active, setActive] = useState("All"); const [cart, setCart] = useState<Product[]>([]); const [bagOpen, setBagOpen] = useState(false); const [liked, setLiked] = useState<number[]>([]);
+  const [active, setActive] = useState("All");
   const [activeSlide, setActiveSlide] = useState(0);
-  const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
+  const { cart, liked, bagOpen, setBagOpen, addToCart, removeFromCart, toggleLike, total } = useCart();
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -53,40 +44,7 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  // Load saved cart/wishlist once, when the page first mounts in the browser.
-  // Deliberately not using a useState lazy-initializer here: that would run
-  // during server-side render too (where localStorage doesn't exist), and
-  // even on the client it would make the very first render already show
-  // saved data while the server-rendered HTML showed none — a hydration
-  // mismatch. Reading in an effect guarantees this only runs after mount.
-  useEffect(() => {
-    const savedCart = localStorage.getItem("styleroute_cart");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (savedCart) setCart(JSON.parse(savedCart));
-
-    const savedLiked = localStorage.getItem("styleroute_wishlist");
-    if (savedLiked) setLiked(JSON.parse(savedLiked));
-
-    setHasLoadedStorage(true);
-  }, []);
-
-  // Re-save to localStorage every time the cart changes — but not before the
-  // load effect above has actually run, otherwise this fires first (with the
-  // still-empty initial cart) and wipes out whatever was saved from last time.
-  useEffect(() => {
-    if (!hasLoadedStorage) return;
-    localStorage.setItem("styleroute_cart", JSON.stringify(cart));
-  }, [cart, hasLoadedStorage]);
-
-  // Same guard for the wishlist.
-  useEffect(() => {
-    if (!hasLoadedStorage) return;
-    localStorage.setItem("styleroute_wishlist", JSON.stringify(liked));
-  }, [liked, hasLoadedStorage]);
-
   const shown = useMemo(() => active === "All" ? PRODUCTS : PRODUCTS.filter((item) => item.category === active), [active]);
-  const total = cart.reduce((sum, item) => sum + item.price, 0);
-  const add = (product: Product) => { setCart((items) => [...items, product]); setBagOpen(true); };
   return <div className="overflow-hidden">
     <section className="relative min-h-[650px] overflow-hidden bg-neutral-900">
       <div
@@ -125,10 +83,10 @@ export default function Home() {
     <section className="border-b border-neutral-200 bg-white py-6"><div className="mx-auto grid max-w-7xl gap-5 px-5 text-center sm:grid-cols-3">{["Made for movement", "Soft on skin", "Easy 7-day exchange"].map((item, index) => <div key={item} className="flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-widest"><span className="grid h-7 w-7 place-items-center rounded-full bg-brand-gold text-[11px]">0{index + 1}</span>{item}</div>)}</div></section>
     <section className="bg-brand-cream py-20"><div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:grid-cols-[1fr_1.2fr]"><div className="relative mx-auto aspect-[7/10] w-full max-w-sm overflow-hidden rounded-sm shadow-xl md:mx-0"><Image src="/brand/hero-lion.jpeg" alt="Style Route campaign — comfort with character" fill sizes="(max-width: 768px) 90vw, 420px" className="object-cover" /></div><div><p className="text-xs font-bold tracking-[.2em] text-brand-gold">THE CAMPAIGN</p><h2 className="mt-2 text-4xl font-black uppercase leading-none tracking-[-.05em]">Comfort,<br />with character.</h2><p className="mt-5 max-w-md leading-7 text-neutral-600">From the studio to the schoolyard, Style Route pieces are built to keep up, look sharp, and feel like home.</p><a href="#new-arrivals" className="mt-6 inline-flex w-fit items-center gap-2 bg-brand-navy px-6 py-4 text-sm font-black uppercase tracking-wider text-white hover:bg-black">Explore the collection <ArrowRight size={16} /></a></div></div></section>
     <section className="mx-auto max-w-7xl px-5 py-20"><div className="mb-9"><p className="text-xs font-bold tracking-[.2em] text-brand-gold">DRESS THE MOOD</p><h2 className="mt-2 text-3xl font-black uppercase tracking-[-.04em]">Shop by category</h2></div><div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{CATEGORIES.map(([name, image]) => <button key={name} onClick={() => { setActive(name === "Denim" ? "Bottoms" : name); document.getElementById("new-arrivals")?.scrollIntoView({ behavior: "smooth" }); }} className="group relative aspect-[.78] overflow-hidden text-left"><Image src={photo(image)} alt={name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" /><span className="absolute bottom-4 left-4 text-xl font-black uppercase text-white">{name}</span></button>)}</div></section>
-    <section id="new-arrivals" className="bg-brand-cream py-20"><div className="mx-auto max-w-7xl px-5"><div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-bold tracking-[.2em] text-brand-gold">JUST DROPPED</p><h2 className="mt-2 text-3xl font-black uppercase tracking-[-.04em]">New arrivals</h2></div><div className="flex gap-2 overflow-auto">{["All", "T-Shirts", "Shirts", "Shorts", "Bottoms"].map((category) => <button key={category} onClick={() => setActive(category)} className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold ${active === category ? "bg-black text-white" : "bg-white text-neutral-600"}`}>{category}</button>)}</div></div><div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5">{shown.map((product) => <article key={product.id} className="group"><div className="relative aspect-[.78] overflow-hidden bg-neutral-200"><Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" />{product.badge && <span className="absolute left-3 top-3 bg-white px-2 py-1 text-[10px] font-black tracking-wider">{product.badge}</span>}<button onClick={() => setLiked((items) => items.includes(product.id) ? items.filter((id) => id !== product.id) : [...items, product.id])} aria-label="Add to wishlist" className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-white"><Heart size={16} fill={liked.includes(product.id) ? "#e66855" : "none"} className={liked.includes(product.id) ? "text-[#e66855]" : "text-black"} /></button><button onClick={() => add(product)} className="absolute bottom-0 left-0 right-0 translate-y-full bg-black py-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:translate-y-0">Add to bag</button></div><div className="pt-3"><p className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">{product.category}</p><h3 className="mt-1 text-sm font-bold">{product.name}</h3><div className="mt-2 flex gap-2 text-sm font-black"><span>{money(product.price)}</span>{product.oldPrice && <span className="font-normal text-neutral-400 line-through">{money(product.oldPrice)}</span>}</div></div></article>)}</div></div></section>
+    <section id="new-arrivals" className="bg-brand-cream py-20"><div className="mx-auto max-w-7xl px-5"><div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-bold tracking-[.2em] text-brand-gold">JUST DROPPED</p><h2 className="mt-2 text-3xl font-black uppercase tracking-[-.04em]">New arrivals</h2></div><div className="flex gap-2 overflow-auto">{["All", "T-Shirts", "Shirts", "Shorts", "Bottoms"].map((category) => <button key={category} onClick={() => setActive(category)} className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold ${active === category ? "bg-black text-white" : "bg-white text-neutral-600"}`}>{category}</button>)}</div></div><div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4 md:gap-x-5">{shown.map((product) => <article key={product.id} className="group"><div className="relative aspect-[.78] overflow-hidden bg-neutral-200"><Link href={`/product/${product.id}`} className="absolute inset-0 z-0"><Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-500 group-hover:scale-105" /></Link>{product.badge && <span className="absolute left-3 top-3 bg-white px-2 py-1 text-[10px] font-black tracking-wider">{product.badge}</span>}<button onClick={(event) => { event.preventDefault(); toggleLike(product.id); }} aria-label="Add to wishlist" className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-white"><Heart size={16} fill={liked.includes(product.id) ? "#e66855" : "none"} className={liked.includes(product.id) ? "text-[#e66855]" : "text-black"} /></button><button onClick={(event) => { event.preventDefault(); addToCart(product); }} className="absolute bottom-0 left-0 right-0 z-10 translate-y-full bg-black py-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:translate-y-0">Add to bag</button></div><Link href={`/product/${product.id}`} className="block pt-3"><p className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">{product.category}</p><h3 className="mt-1 text-sm font-bold">{product.name}</h3><div className="mt-2 flex gap-2 text-sm font-black"><span>{money(product.price)}</span>{product.oldPrice && <span className="font-normal text-neutral-400 line-through">{money(product.oldPrice)}</span>}</div></Link></article>)}</div></div></section>
     <section className="mx-auto max-w-7xl px-5 py-20"><div className="grid gap-9 md:grid-cols-[1fr_1.5fr]"><div className="flex flex-col justify-center"><p className="text-xs font-bold tracking-[.2em] text-brand-gold">FIND THE FIT</p><h2 className="mt-2 text-4xl font-black uppercase leading-none tracking-[-.05em]">Growing up,<br />in style.</h2><p className="mt-5 max-w-sm leading-7 text-neutral-600">Every kid grows differently. Start with their age, discover the styles made to keep up.</p><button className="mt-6 flex w-fit items-center gap-2 text-sm font-black uppercase tracking-wider">Shop by age <ArrowRight size={16} /></button></div><div className="grid grid-cols-3 gap-3">{[["6–18 Months", "photo-1514090458221-65bb69cf63e6"], ["2–5 Years", "photo-1516627145497-ae6968895b74"], ["6–16 Years", "photo-1519238366310-7b2d5f3a1a89"]].map(([age, image]) => <div key={age} className="group relative aspect-[.6] overflow-hidden"><Image src={photo(image)} alt={age} fill sizes="33vw" className="object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" /><p className="absolute bottom-3 left-3 text-sm font-black text-white">{age}</p></div>)}</div></div></section>
     <section className="bg-brand-navy py-20 text-white"><div className="mx-auto grid max-w-7xl items-center gap-10 px-5 md:grid-cols-2"><div><p className="text-xs font-bold tracking-[.2em] text-brand-gold">REAL TALK FROM PARENTS</p><blockquote className="mt-5 text-3xl font-semibold leading-tight tracking-[-.04em] md:text-4xl">“The fit is spot-on, the fabric survives playgrounds, and he actually wants to wear it.”</blockquote><div className="mt-7 flex text-brand-gold">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} fill="currentColor" />)}</div><p className="mt-2 text-sm font-bold">Riya Mehra <span className="font-normal text-white/60">• Delhi</span></p></div><div className="relative aspect-video overflow-hidden"><Image src={photo("photo-1491013516836-7db643ee7e29")} alt="Kids enjoying an afternoon outdoors" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /></div></div></section>
     {cart.length > 0 && <button onClick={() => setBagOpen(true)} className="fixed bottom-5 right-5 z-30 flex items-center gap-3 rounded-full bg-black px-5 py-4 text-sm font-bold text-white shadow-xl"><ShoppingBag size={18} /> Bag ({cart.length}) <span className="text-brand-gold">{money(total)}</span></button>}
-    {bagOpen && <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setBagOpen(false)}><aside onClick={(event) => event.stopPropagation()} className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white p-6 shadow-2xl"><div className="flex items-center justify-between border-b pb-5"><h2 className="text-xl font-black uppercase">Your bag ({cart.length})</h2><button onClick={() => setBagOpen(false)} aria-label="Close bag"><X /></button></div>{cart.length === 0 ? <div className="grid flex-1 place-items-center font-bold">Your bag is waiting for a great look.</div> : <><div className="flex-1 divide-y overflow-auto">{cart.map((product, index) => <div className="flex gap-4 py-4" key={`${product.id}-${index}`}><div className="relative h-24 w-20 shrink-0 overflow-hidden"><Image src={product.image} alt="" fill sizes="80px" className="object-cover" /></div><div className="flex-1"><p className="text-xs font-bold text-neutral-500">SIZE 8–9Y</p><h3 className="mt-1 text-sm font-bold">{product.name}</h3><p className="mt-2 font-black">{money(product.price)}</p></div><button onClick={() => setCart((items) => items.filter((_, i) => i !== index))} className="text-xs underline">Remove</button></div>)}</div><div className="border-t pt-5"><div className="mb-4 flex justify-between font-bold"><span>Subtotal</span><span>{money(total)}</span></div><button className="w-full bg-brand-gold py-4 text-sm font-black uppercase tracking-wider">Proceed to checkout</button><p className="mt-3 text-center text-xs text-neutral-500">Secure checkout comes in the next phase.</p></div></>}</aside></div>}
+    {bagOpen && <div className="fixed inset-0 z-50 bg-black/40" onClick={() => setBagOpen(false)}><aside onClick={(event) => event.stopPropagation()} className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white p-6 shadow-2xl"><div className="flex items-center justify-between border-b pb-5"><h2 className="text-xl font-black uppercase">Your bag ({cart.length})</h2><button onClick={() => setBagOpen(false)} aria-label="Close bag"><X /></button></div>{cart.length === 0 ? <div className="grid flex-1 place-items-center font-bold">Your bag is waiting for a great look.</div> : <><div className="flex-1 divide-y overflow-auto">{cart.map((product, index) => <div className="flex gap-4 py-4" key={`${product.id}-${index}`}><div className="relative h-24 w-20 shrink-0 overflow-hidden"><Image src={product.image} alt="" fill sizes="80px" className="object-cover" /></div><div className="flex-1"><p className="text-xs font-bold text-neutral-500">SIZE 8–9Y</p><h3 className="mt-1 text-sm font-bold">{product.name}</h3><p className="mt-2 font-black">{money(product.price)}</p></div><button onClick={() => removeFromCart(index)} className="text-xs underline">Remove</button></div>)}</div><div className="border-t pt-5"><div className="mb-4 flex justify-between font-bold"><span>Subtotal</span><span>{money(total)}</span></div><button className="w-full bg-brand-gold py-4 text-sm font-black uppercase tracking-wider">Proceed to checkout</button><p className="mt-3 text-center text-xs text-neutral-500">Secure checkout comes in the next phase.</p></div></>}</aside></div>}
   </div>;
 }
