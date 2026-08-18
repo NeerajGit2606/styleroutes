@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, Star } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "About Us — StyleRoute",
+  description: "The story behind StyleRoute — comfort-first kidswear built for real, everyday adventures.",
+};
 
 export default function AboutPage() {
   return (

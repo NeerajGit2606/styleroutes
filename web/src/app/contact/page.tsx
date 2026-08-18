@@ -1,4 +1,10 @@
 import { Clock, Mail, MapPin } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us — StyleRoute",
+  description: "Questions about an order, sizing, or anything else — get in touch with the StyleRoute team.",
+};
 
 export default function ContactPage() {
   return (

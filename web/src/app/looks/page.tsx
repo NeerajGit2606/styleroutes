@@ -1,6 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PRODUCTS, money, photo } from "@/lib/products";
+
+export const metadata: Metadata = {
+  title: "Looks — StyleRoute",
+  description: "Curated outfit ideas, put together piece by piece so you don't have to.",
+};
 
 const LOOKS = [
   {

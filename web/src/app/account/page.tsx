@@ -1,5 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { User } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "My Account — StyleRoute",
+};
 
 export default function AccountPage() {
   return (
