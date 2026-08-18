@@ -16,7 +16,7 @@ const NAV_LINKS = [
     label: "Baby Boy",
     href: "/baby-boy",
     tag: "6-24 Months",
-    children: ["T-Shirts", "Shirts", "Shorts", "Bottoms"],
+    children: ["Rompers", "Onesies", "Dungarees", "Sleepsuits", "T-Shirts", "Shorts"],
   },
   { label: "Looks", href: "/looks" },
   { label: "About", href: "/about" },

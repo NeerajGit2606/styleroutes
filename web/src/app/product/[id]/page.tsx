@@ -65,7 +65,7 @@ export default function ProductPage() {
 
           <div className="mt-8 flex gap-3">
             <button
-              onClick={() => addToCart(product)}
+              onClick={() => addToCart(product, selectedSize)}
               className="flex flex-1 items-center justify-center gap-2 bg-black py-4 text-sm font-black uppercase tracking-wider text-white hover:bg-neutral-800"
             >
               <ShoppingBag size={18} /> Add to bag

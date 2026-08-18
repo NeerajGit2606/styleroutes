@@ -15,7 +15,7 @@ const LOOKS = [
   },
   {
     title: "Playground Ready",
-    image: photo("photo-1491013516836-7db643ee7e29"),
+    image: photo("photo-1517457373958-b7bdd4587205"),
     productIds: [1, 4],
   },
 ];

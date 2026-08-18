@@ -1,7 +1,10 @@
+export type AgeGroup = "Boys" | "Baby Boy";
+
 export type Product = {
   id: number;
   name: string;
   category: string;
+  ageGroup: AgeGroup;
   price: number;
   oldPrice?: number;
   image: string;
@@ -12,31 +15,40 @@ export type Product = {
 
 export const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`;
 
+export const FREE_SHIPPING_THRESHOLD = 999;
+export const SHIPPING_FEE = 99;
+
+const BOY_SIZES = ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"];
+const BABY_SIZES = ["0-6M", "6-12M", "12-18M", "18-24M"];
+
 export const PRODUCTS: Product[] = [
   {
     id: 1,
     name: "Skyline Graphic Tee",
     category: "T-Shirts",
+    ageGroup: "Boys",
     price: 899,
     oldPrice: 1199,
     badge: "NEW",
     image: photo("photo-1503944583220-79d8926ad5e2"),
     description: "A soft, breathable cotton tee with a bold graphic print — built for playground days and easy to pair with anything in the wardrobe.",
-    sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"],
+    sizes: BOY_SIZES,
   },
   {
     id: 2,
     name: "Weekend Cargo Shorts",
     category: "Shorts",
+    ageGroup: "Boys",
     price: 1199,
     image: photo("photo-1519238263530-99bdd11df2ea"),
     description: "Durable cotton-blend cargo shorts with reinforced knees and multiple pockets — made to survive climbing, running, and everything in between.",
-    sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"],
+    sizes: BOY_SIZES,
   },
   {
     id: 3,
     name: "Indigo Club Overshirt",
     category: "Shirts",
+    ageGroup: "Boys",
     price: 1499,
     oldPrice: 1799,
     badge: "BESTSELLER",
@@ -48,10 +60,115 @@ export const PRODUCTS: Product[] = [
     id: 4,
     name: "Easy Move Joggers",
     category: "Bottoms",
+    ageGroup: "Boys",
     price: 1299,
     image: photo("photo-1515886657613-9f3515b0c78f"),
     description: "Stretch-waist joggers in a soft brushed fabric — built for full range of motion, from the school run to the playground.",
-    sizes: ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"],
+    sizes: BOY_SIZES,
+  },
+  {
+    id: 5,
+    name: "Striped Varsity Polo",
+    category: "T-Shirts",
+    ageGroup: "Boys",
+    price: 999,
+    image: photo("photo-1471286174890-9c112ffca5b4"),
+    description: "A breathable pique-cotton polo with a classic varsity stripe — smart enough for school, comfortable enough for after.",
+    sizes: BOY_SIZES,
+  },
+  {
+    id: 6,
+    name: "Checkered Flannel Shirt",
+    category: "Shirts",
+    ageGroup: "Boys",
+    price: 1399,
+    badge: "NEW",
+    image: photo("photo-1489533119213-66a5cd877091"),
+    description: "Brushed flannel in a classic check — a cosy layering piece for cooler evenings, easy to dress up or down.",
+    sizes: ["4-5Y", "6-7Y", "8-9Y", "10-11Y", "12-13Y"],
+  },
+  {
+    id: 7,
+    name: "Rugged Denim Shorts",
+    category: "Shorts",
+    ageGroup: "Boys",
+    price: 1099,
+    image: photo("photo-1601979031925-424e53b6caaa"),
+    description: "Sturdy denim shorts with an adjustable waistband — built to keep up with scraped knees and long summer days.",
+    sizes: BOY_SIZES,
+  },
+  {
+    id: 8,
+    name: "Track Star Pants",
+    category: "Bottoms",
+    ageGroup: "Boys",
+    price: 1349,
+    image: photo("photo-1522771739844-6a9f6d5f14af"),
+    description: "Side-stripe track pants in a lightweight knit — made for sprinting, stretching, and everything active in between.",
+    sizes: BOY_SIZES,
+  },
+  {
+    id: 9,
+    name: "Cotton Romper Set",
+    category: "Rompers",
+    ageGroup: "Baby Boy",
+    price: 799,
+    badge: "NEW",
+    image: photo("photo-1519238359922-989348752efb"),
+    description: "A soft cotton romper with easy snap buttons — gentle on delicate skin and effortless for quick changes.",
+    sizes: BABY_SIZES,
+  },
+  {
+    id: 10,
+    name: "Snap-Button Onesie",
+    category: "Onesies",
+    ageGroup: "Baby Boy",
+    price: 649,
+    image: photo("photo-1622290291468-a28f7a7dc6a8"),
+    description: "A breathable everyday onesie in soft-washed cotton, with snap closures for fuss-free diaper changes.",
+    sizes: BABY_SIZES,
+  },
+  {
+    id: 11,
+    name: "Dungaree & Bodysuit Set",
+    category: "Dungarees",
+    ageGroup: "Baby Boy",
+    price: 999,
+    oldPrice: 1249,
+    badge: "BESTSELLER",
+    image: photo("photo-1600091166971-7f9faad6c1e2"),
+    description: "An adorable dungaree paired with a matching bodysuit — soft, stretchy, and ready for every milestone photo.",
+    sizes: BABY_SIZES,
+  },
+  {
+    id: 12,
+    name: "Soft Fleece Sleepsuit",
+    category: "Sleepsuits",
+    ageGroup: "Baby Boy",
+    price: 849,
+    image: photo("photo-1543854589-fdd815f176e0"),
+    description: "A cosy fleece sleepsuit with a smooth zip — warm enough for chilly nights, gentle enough for sensitive skin.",
+    sizes: BABY_SIZES,
+  },
+  {
+    id: 13,
+    name: "Little Explorer Tee",
+    category: "T-Shirts",
+    ageGroup: "Baby Boy",
+    price: 449,
+    image: photo("photo-1518831959646-742c3a14ebf7"),
+    description: "A featherlight cotton tee with a playful print — easy to layer, easier to wash.",
+    sizes: BABY_SIZES,
+  },
+  {
+    id: 14,
+    name: "Elastic Waist Shorts",
+    category: "Shorts",
+    ageGroup: "Baby Boy",
+    price: 549,
+    image: photo("photo-1587654780291-39c9404d746b"),
+    description: "Soft, stretchy shorts with a fully elastic waist — built for tummy time, crawling, and first steps alike.",
+    sizes: BABY_SIZES,
   },
 ];
 

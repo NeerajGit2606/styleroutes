@@ -5,25 +5,28 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Heart } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PRODUCTS, money } from "@/lib/products";
+import { PRODUCTS, money, type AgeGroup } from "@/lib/products";
 import { useCart } from "@/context/CartContext";
 
-const FILTERS = ["All", "T-Shirts", "Shirts", "Shorts", "Bottoms"];
 type Sort = "featured" | "price-asc" | "price-desc";
 
-export function CategoryGrid({ title, tag }: { title: string; tag: string }) {
+export function CategoryGrid({ title, tag, ageGroup }: { title: string; tag: string; ageGroup: AgeGroup }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("category") ?? "All";
   const [sort, setSort] = useState<Sort>("featured");
   const { liked, toggleLike, addToCart } = useCart();
 
+  const ageGroupProducts = useMemo(() => PRODUCTS.filter((product) => product.ageGroup === ageGroup), [ageGroup]);
+
+  const filters = useMemo(() => ["All", ...new Set(ageGroupProducts.map((product) => product.category))], [ageGroupProducts]);
+
   const products = useMemo(() => {
-    const filtered = categoryFromUrl === "All" ? PRODUCTS : PRODUCTS.filter((product) => product.category === categoryFromUrl);
+    const filtered = categoryFromUrl === "All" ? ageGroupProducts : ageGroupProducts.filter((product) => product.category === categoryFromUrl);
     if (sort === "price-asc") return [...filtered].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") return [...filtered].sort((a, b) => b.price - a.price);
     return filtered;
-  }, [categoryFromUrl, sort]);
+  }, [ageGroupProducts, categoryFromUrl, sort]);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12">
@@ -40,7 +43,7 @@ export function CategoryGrid({ title, tag }: { title: string; tag: string }) {
 
       <div className="mb-9 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div className="flex flex-wrap gap-2">
-          {FILTERS.map((filter) => (
+          {filters.map((filter) => (
             <Link
               key={filter}
               href={filter === "All" ? pathname : `${pathname}?category=${encodeURIComponent(filter)}`}

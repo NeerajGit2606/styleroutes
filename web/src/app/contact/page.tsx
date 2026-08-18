@@ -13,7 +13,7 @@ export default function ContactPage() {
             <Mail size={20} className="mt-1 shrink-0 text-brand-gold" />
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Email</p>
-              <a href="mailto:contact@styleroute.co.in" className="mt-1 block font-bold hover:text-brand-gold">contact@styleroute.co.in</a>
+              <a href="mailto:contact@styleroute.fashion" className="mt-1 block font-bold hover:text-brand-gold">contact@styleroute.fashion</a>
             </div>
           </div>
           <div className="flex items-start gap-4">
