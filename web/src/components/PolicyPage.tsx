@@ -1,15 +1,20 @@
-import Link from "next/link";
-import { FileText } from "lucide-react";
+import type { ReactNode } from "react";
 
-export function PolicyPage({ title }: { title: string }) {
+export function PolicyPage({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-5 py-24 text-center">
-      <FileText size={40} className="text-neutral-300" />
-      <h1 className="text-2xl font-black uppercase tracking-[-.04em]">{title}</h1>
-      <p className="max-w-md text-sm text-neutral-500">This policy is being finalized. In the meantime, reach out to us directly and we&rsquo;ll help with any questions.</p>
-      <Link href="/contact" className="mt-2 bg-black px-6 py-3 text-xs font-black uppercase tracking-wider text-white hover:bg-neutral-800">
-        Contact us
-      </Link>
+    <div className="mx-auto max-w-3xl px-5 py-16">
+      <h1 className="text-3xl font-black uppercase tracking-[-.04em]">{title}</h1>
+      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-neutral-400">Last updated: {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long" })}</p>
+      <div className="prose-policy mt-8 space-y-6 text-sm leading-7 text-neutral-700">{children}</div>
     </div>
+  );
+}
+
+export function PolicySection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section>
+      <h2 className="mb-2 text-sm font-black uppercase tracking-wide text-black">{title}</h2>
+      <div className="space-y-3">{children}</div>
+    </section>
   );
 }
