@@ -2,4 +2,4 @@
 // Format: country code + number, no +, no spaces, no leading zero (wa.me convention).
 export const WHATSAPP_NUMBER = "910000000000";
 
-export const SUPPORT_EMAIL = "contact@styleroute.fashion";
+export const SUPPORT_EMAIL = "contact@styleroute.co.in";

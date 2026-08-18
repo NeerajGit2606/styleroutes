@@ -9,9 +9,22 @@ export type CartLine = {
   quantity: number;
 };
 
+export type OrderCustomer = { name: string; phone: string; address: string; city: string; state: string; pincode: string };
+
+export type Order = {
+  id: string;
+  date: string;
+  items: CartLine[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+  customer: OrderCustomer;
+};
+
 type CartContextValue = {
   cart: CartLine[];
   liked: number[];
+  orders: Order[];
   bagOpen: boolean;
   setBagOpen: (open: boolean) => void;
   addToCart: (product: Product, size?: string, quantity?: number) => void;
@@ -19,6 +32,7 @@ type CartContextValue = {
   setQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
   toggleLike: (productId: number) => void;
+  placeOrder: (customer: OrderCustomer, shipping: number) => Order;
   total: number;
 };
 
@@ -27,6 +41,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [liked, setLiked] = useState<number[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [bagOpen, setBagOpen] = useState(false);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
 
@@ -42,6 +57,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const savedLiked = localStorage.getItem("styleroute_wishlist");
     if (savedLiked) setLiked(JSON.parse(savedLiked));
+
+    const savedOrders = localStorage.getItem("styleroute_orders");
+    if (savedOrders) setOrders(JSON.parse(savedOrders));
 
     setHasLoadedStorage(true);
   }, []);
@@ -59,6 +77,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!hasLoadedStorage) return;
     localStorage.setItem("styleroute_wishlist", JSON.stringify(liked));
   }, [liked, hasLoadedStorage]);
+
+  // Same guard for past orders.
+  useEffect(() => {
+    if (!hasLoadedStorage) return;
+    localStorage.setItem("styleroute_orders", JSON.stringify(orders));
+  }, [orders, hasLoadedStorage]);
 
   const addToCart = (product: Product, size?: string, quantity = 1) => {
     const chosenSize = size ?? product.sizes[0] ?? "";
@@ -92,9 +116,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const total = cart.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
 
+  const placeOrder = (customer: OrderCustomer, shipping: number): Order => {
+    const order: Order = {
+      id: `SR${Date.now().toString().slice(-8)}`,
+      date: new Date().toISOString(),
+      items: cart,
+      subtotal: total,
+      shipping,
+      total: total + shipping,
+      customer,
+    };
+    setOrders((items) => [order, ...items]);
+    clearCart();
+    return order;
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, liked, bagOpen, setBagOpen, addToCart, removeFromCart, setQuantity, clearCart, toggleLike, total }}
+      value={{ cart, liked, orders, bagOpen, setBagOpen, addToCart, removeFromCart, setQuantity, clearCart, toggleLike, placeOrder, total }}
     >
       {children}
     </CartContext.Provider>

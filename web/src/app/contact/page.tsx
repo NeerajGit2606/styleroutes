@@ -1,5 +1,6 @@
 import { Clock, Mail, MapPin } from "lucide-react";
 import type { Metadata } from "next";
+import { SUPPORT_EMAIL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Contact Us — StyleRoute",
@@ -19,7 +20,7 @@ export default function ContactPage() {
             <Mail size={20} className="mt-1 shrink-0 text-brand-gold" />
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Email</p>
-              <a href="mailto:contact@styleroute.fashion" className="mt-1 block font-bold hover:text-brand-gold">contact@styleroute.fashion</a>
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-1 block font-bold hover:text-brand-gold">{SUPPORT_EMAIL}</a>
             </div>
           </div>
           <div className="flex items-start gap-4">

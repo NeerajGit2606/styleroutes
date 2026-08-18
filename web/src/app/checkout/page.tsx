@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, money } from "@/lib/products";
 import { WHATSAPP_NUMBER } from "@/lib/config";
+import { PROFILE_STORAGE_KEY } from "@/lib/profile";
 
 type FormState = {
   name: string;
@@ -21,10 +22,20 @@ type FormState = {
 const EMPTY_FORM: FormState = { name: "", phone: "", address: "", city: "", state: "", pincode: "" };
 
 export default function CheckoutPage() {
-  const { cart, total, clearCart } = useCart();
+  const { cart, total, placeOrder } = useCart();
   const router = useRouter();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+
+  // Pre-fill from a saved account profile, if the user set one up earlier —
+  // saves them re-typing the same shipping details on their next order.
+  useEffect(() => {
+    const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (!savedProfile) return;
+    const { name, phone, address, city, state, pincode } = JSON.parse(savedProfile);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setForm({ name, phone, address, city, state, pincode });
+  }, []);
 
   const shipping = total === 0 || total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const grandTotal = total + shipping;
@@ -45,31 +56,33 @@ export default function CheckoutPage() {
     return Object.keys(next).length === 0;
   };
 
-  const placeOrder = () => {
+  const handlePlaceOrder = () => {
     if (!validate()) return;
 
-    const lines = cart
+    const { name, phone, address, city, state, pincode } = form;
+    const order = placeOrder({ name, phone, address, city, state, pincode }, shipping);
+
+    const lines = order.items
       .map((line) => `• ${line.product.name} (Size ${line.size}) x${line.quantity} — ${money(line.product.price * line.quantity)}`)
       .join("\n");
     const message = [
-      "New order from StyleRoute website",
+      `New order from StyleRoute website — ${order.id}`,
       "",
       lines,
       "",
-      `Subtotal: ${money(total)}`,
-      `Shipping: ${shipping === 0 ? "Free" : money(shipping)}`,
-      `Total: ${money(grandTotal)}`,
+      `Subtotal: ${money(order.subtotal)}`,
+      `Shipping: ${order.shipping === 0 ? "Free" : money(order.shipping)}`,
+      `Total: ${money(order.total)}`,
       "",
-      `Name: ${form.name}`,
-      `Phone: ${form.phone}`,
-      `Address: ${form.address}, ${form.city}, ${form.state} - ${form.pincode}`,
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      `Address: ${address}, ${city}, ${state} - ${pincode}`,
       "",
       "Payment: Cash on Delivery (to be confirmed)",
     ].join("\n");
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
-    clearCart();
-    router.push("/order-confirmed");
+    router.push(`/order-confirmed?order=${order.id}`);
   };
 
   if (cart.length === 0) {
@@ -141,7 +154,7 @@ export default function CheckoutPage() {
           </div>
 
           <button
-            onClick={placeOrder}
+            onClick={handlePlaceOrder}
             className="mt-5 w-full bg-brand-gold py-4 text-sm font-black uppercase tracking-wider hover:bg-black hover:text-white"
           >
             Place order via WhatsApp
