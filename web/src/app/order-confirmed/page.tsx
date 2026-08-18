@@ -1,5 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Order Confirmed — StyleRoute",
+};
 
 export default async function OrderConfirmedPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const { order } = await searchParams;
