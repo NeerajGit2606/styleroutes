@@ -19,3 +19,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   await db.order.update({ where: { id }, data: { status } });
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  await db.order.delete({ where: { id } });
+  return NextResponse.json({ ok: true });
+}

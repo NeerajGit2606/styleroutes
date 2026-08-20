@@ -64,7 +64,9 @@ export default function CheckoutPage() {
 
     // Best-effort sync to the admin dashboard's database — the customer's
     // own copy is already safely in localStorage and about to go out over
-    // WhatsApp, so a DB hiccup here should never block checkout.
+    // WhatsApp, so a DB hiccup here should never block checkout. `keepalive`
+    // is required because router.push below unmounts this page right after —
+    // without it, the browser aborts the in-flight request mid-body.
     fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -76,6 +78,7 @@ export default function CheckoutPage() {
         shipping: order.shipping,
         total: order.total,
       }),
+      keepalive: true,
     }).catch(() => {});
 
     const lines = order.items

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { money } from "@/lib/products";
 
 const STATUSES = ["Awaiting confirmation", "Confirmed", "Shipped", "Delivered", "Cancelled"];
@@ -40,6 +41,13 @@ export function AdminOrderRow({
     router.refresh();
   };
 
+  const deleteOrder = async () => {
+    if (!confirm(`Delete order ${orderNumber}? This can't be undone.`)) return;
+    setSaving(true);
+    await fetch(`/api/orders/${id}`, { method: "DELETE" });
+    router.refresh();
+  };
+
   return (
     <div className="border border-neutral-200 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-100 pb-4">
@@ -49,16 +57,26 @@ export function AdminOrderRow({
             {new Date(createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
           </p>
         </div>
-        <select
-          value={status}
-          disabled={saving}
-          onChange={(event) => updateStatus(event.target.value)}
-          className="border border-neutral-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wider"
-        >
-          {STATUSES.map((option) => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            value={status}
+            disabled={saving}
+            onChange={(event) => updateStatus(event.target.value)}
+            className="border border-neutral-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wider"
+          >
+            {STATUSES.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          <button
+            onClick={deleteOrder}
+            disabled={saving}
+            aria-label="Delete order"
+            className="grid h-8 w-8 place-items-center text-neutral-400 hover:text-red-600"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1fr_260px]">
