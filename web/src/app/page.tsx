@@ -44,7 +44,8 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  const shown = useMemo(() => active === "All" ? PRODUCTS : PRODUCTS.filter((item) => item.category === active), [active]);
+  const newArrivals = useMemo(() => PRODUCTS.filter((item) => item.ageGroup === "Boys"), []);
+  const shown = useMemo(() => active === "All" ? newArrivals : newArrivals.filter((item) => item.category === active), [active, newArrivals]);
   return <div className="overflow-hidden">
     <section className="relative min-h-[650px] overflow-hidden bg-neutral-900">
       <div
