@@ -1,5 +1,3 @@
-// TODO: replace with the real StyleRoute business WhatsApp number before launch.
-// Format: country code + number, no +, no spaces, no leading zero (wa.me convention).
-export const WHATSAPP_NUMBER = "910000000000";
+export const WHATSAPP_NUMBER = "919999645181";
 
 export const SUPPORT_EMAIL = "contact@styleroute.co.in";
