@@ -1,0 +1,32 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { db } from "@/lib/db";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const { orderNumber, items, customer, subtotal, shipping, total } = body ?? {};
+
+  if (!orderNumber || !items || !customer || subtotal == null || shipping == null || total == null) {
+    return NextResponse.json({ error: "Missing order fields" }, { status: 400 });
+  }
+
+  try {
+    await db.order.create({
+      data: { orderNumber, items, customer, subtotal, shipping, total },
+    });
+    return NextResponse.json({ ok: true });
+  } catch {
+    // The customer's order already made it into WhatsApp and their own
+    // "My Orders" (localStorage) regardless of whether this DB write
+    // succeeds — so a DB hiccup here shouldn't surface as a checkout error.
+    return NextResponse.json({ ok: false }, { status: 200 });
+  }
+}
+
+export async function GET() {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const orders = await db.order.findMany({ orderBy: { createdAt: "desc" } });
+  return NextResponse.json({ orders });
+}

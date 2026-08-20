@@ -62,6 +62,22 @@ export default function CheckoutPage() {
     const { name, phone, address, city, state, pincode } = form;
     const order = placeOrder({ name, phone, address, city, state, pincode }, shipping);
 
+    // Best-effort sync to the admin dashboard's database — the customer's
+    // own copy is already safely in localStorage and about to go out over
+    // WhatsApp, so a DB hiccup here should never block checkout.
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderNumber: order.id,
+        items: order.items,
+        customer: order.customer,
+        subtotal: order.subtotal,
+        shipping: order.shipping,
+        total: order.total,
+      }),
+    }).catch(() => {});
+
     const lines = order.items
       .map((line) => `• ${line.product.name} (Size ${line.size}) x${line.quantity} — ${money(line.product.price * line.quantity)}`)
       .join("\n");
