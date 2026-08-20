@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { sendOrderNotificationEmail } from "@/lib/mailer";
 
 export async function POST(request: NextRequest) {
   let body;
@@ -14,6 +15,10 @@ export async function POST(request: NextRequest) {
   if (!orderNumber || !items || !customer || subtotal == null || shipping == null || total == null) {
     return NextResponse.json({ error: "Missing order fields" }, { status: 400 });
   }
+
+  // Fire the owner-notification email as a backup to WhatsApp — best-effort,
+  // never blocks or fails checkout (mailer swallows its own errors).
+  sendOrderNotificationEmail({ orderNumber, items, customer, subtotal, shipping, total });
 
   try {
     await db.order.create({
