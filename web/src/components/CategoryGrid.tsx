@@ -85,7 +85,7 @@ export function CategoryGrid({ title, tag, ageGroup }: { title: string; tag: str
                 </button>
                 <button
                   onClick={(event) => { event.preventDefault(); addToCart(product); }}
-                  className="absolute bottom-0 left-0 right-0 z-10 translate-y-full bg-black py-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:translate-y-0"
+                  className="absolute bottom-0 left-0 right-0 z-10 bg-black py-3 text-xs font-bold uppercase tracking-wider text-white"
                 >
                   Add to bag
                 </button>
