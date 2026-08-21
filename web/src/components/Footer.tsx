@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState, type FormEvent } from "react";
 import { SocialIcon } from "@/components/SocialIcon";
 import { BrandMark } from "@/components/BrandMark";
 
@@ -32,6 +35,13 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
 ];
 
 export function Footer() {
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubscribed(true);
+  };
+
   return (
     <footer className="relative mt-16 overflow-hidden bg-brand-navy text-white">
       <BrandMark
@@ -62,16 +72,21 @@ export function Footer() {
           <p className="mb-4 text-sm text-neutral-300">
             Sign up and be the first to know about new collections, campaigns, sale and more.
           </p>
-          <form className="flex border-b border-neutral-500 pb-2">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="w-full bg-transparent text-sm placeholder:text-neutral-500 focus:outline-none"
-            />
-            <button type="submit" aria-label="Subscribe" className="text-brand-gold">
-              →
-            </button>
-          </form>
+          {subscribed ? (
+            <p className="border-b border-neutral-500 pb-2 text-sm font-bold text-brand-gold">Thanks for subscribing!</p>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex border-b border-neutral-500 pb-2">
+              <input
+                type="email"
+                required
+                placeholder="Your email address"
+                className="w-full bg-transparent text-sm placeholder:text-neutral-500 focus:outline-none"
+              />
+              <button type="submit" aria-label="Subscribe" className="text-brand-gold">
+                →
+              </button>
+            </form>
+          )}
 
           <div className="mt-8 flex gap-4">
             <SocialIcon name="facebook" />
