@@ -27,6 +27,7 @@ type CartContextValue = {
   orders: Order[];
   bagOpen: boolean;
   setBagOpen: (open: boolean) => void;
+  toast: string | null;
   addToCart: (product: Product, size?: string, quantity?: number) => void;
   removeFromCart: (index: number) => void;
   setQuantity: (index: number, quantity: number) => void;
@@ -43,6 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [liked, setLiked] = useState<number[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [bagOpen, setBagOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
 
   // Load saved cart/wishlist once, when the app first mounts in the browser.
@@ -93,8 +95,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...items, { product, size: chosenSize, quantity }];
     });
-    setBagOpen(true);
+    setToast(`${product.name} added to bag`);
   };
+
+  // Auto-dismiss the "added to bag" toast a couple seconds after it appears.
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 2200);
+    return () => clearTimeout(id);
+  }, [toast]);
 
   const removeFromCart = (index: number) => {
     setCart((items) => items.filter((_, i) => i !== index));
@@ -133,7 +142,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ cart, liked, orders, bagOpen, setBagOpen, addToCart, removeFromCart, setQuantity, clearCart, toggleLike, placeOrder, total }}
+      value={{ cart, liked, orders, bagOpen, setBagOpen, toast, addToCart, removeFromCart, setQuantity, clearCart, toggleLike, placeOrder, total }}
     >
       {children}
     </CartContext.Provider>
