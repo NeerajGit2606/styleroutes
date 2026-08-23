@@ -21,6 +21,10 @@ type FormState = {
 
 const EMPTY_FORM: FormState = { name: "", phone: "", address: "", city: "", state: "", pincode: "" };
 
+// Matches the top-to-bottom order fields appear in the form, so the first
+// error found here is also the first one the customer would see on screen.
+const FIELD_ORDER: (keyof FormState)[] = ["name", "phone", "pincode", "address", "city", "state"];
+
 export default function CheckoutPage() {
   const { cart, total, placeOrder } = useCart();
   const router = useRouter();
@@ -53,11 +57,18 @@ export default function CheckoutPage() {
     if (!form.state.trim()) next.state = "Required";
     if (!/^\d{6}$/.test(form.pincode.trim())) next.pincode = "Enter a valid 6-digit pincode";
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return next;
   };
 
   const handlePlaceOrder = () => {
-    if (!validate()) return;
+    const validationErrors = validate();
+    const firstErrorField = FIELD_ORDER.find((field) => validationErrors[field]);
+    if (firstErrorField) {
+      const el = document.getElementById(`checkout-${firstErrorField}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.focus();
+      return;
+    }
 
     const { name, phone, address, city, state, pincode } = form;
     const order = placeOrder({ name, phone, address, city, state, pincode }, shipping);
@@ -125,12 +136,12 @@ export default function CheckoutPage() {
         <div>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest">Shipping details</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Full name" value={form.name} onChange={updateField("name")} error={errors.name} full />
-            <Field label="Phone number" value={form.phone} onChange={updateField("phone")} error={errors.phone} placeholder="10-digit mobile number" />
-            <Field label="Pincode" value={form.pincode} onChange={updateField("pincode")} error={errors.pincode} placeholder="6-digit pincode" />
-            <Field label="Address" value={form.address} onChange={updateField("address")} error={errors.address} full />
-            <Field label="City" value={form.city} onChange={updateField("city")} error={errors.city} />
-            <Field label="State" value={form.state} onChange={updateField("state")} error={errors.state} />
+            <Field name="name" label="Full name" value={form.name} onChange={updateField("name")} error={errors.name} full />
+            <Field name="phone" label="Phone number" value={form.phone} onChange={updateField("phone")} error={errors.phone} placeholder="10-digit mobile number" />
+            <Field name="pincode" label="Pincode" value={form.pincode} onChange={updateField("pincode")} error={errors.pincode} placeholder="6-digit pincode" />
+            <Field name="address" label="Address" value={form.address} onChange={updateField("address")} error={errors.address} full />
+            <Field name="city" label="City" value={form.city} onChange={updateField("city")} error={errors.city} />
+            <Field name="state" label="State" value={form.state} onChange={updateField("state")} error={errors.state} />
           </div>
 
           <div className="mt-8 border border-neutral-200 p-4">
@@ -185,6 +196,7 @@ export default function CheckoutPage() {
 }
 
 function Field({
+  name,
   label,
   value,
   onChange,
@@ -192,6 +204,7 @@ function Field({
   placeholder,
   full,
 }: {
+  name: string;
   label: string;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -201,8 +214,9 @@ function Field({
 }) {
   return (
     <div className={full ? "sm:col-span-2" : ""}>
-      <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-neutral-500">{label}</label>
+      <label htmlFor={`checkout-${name}`} className="mb-1 block text-xs font-bold uppercase tracking-widest text-neutral-500">{label}</label>
       <input
+        id={`checkout-${name}`}
         type="text"
         value={value}
         onChange={onChange}
