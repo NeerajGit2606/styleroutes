@@ -18,22 +18,15 @@ const SLIDES = [
   },
 ];
 
-const LOGO_PHASE_MS = 2000;
 const SLIDE_MS = 2000;
 const TRANSITION_MS = 700;
 const EXIT_MS = 600;
 
-type Phase = "logo" | "photos" | "exiting" | "done";
+type Phase = "photos" | "exiting" | "done";
 
 export function SplashScreen() {
-  const [phase, setPhase] = useState<Phase>("logo");
+  const [phase, setPhase] = useState<Phase>("photos");
   const [slideIndex, setSlideIndex] = useState(0);
-
-  useEffect(() => {
-    if (phase !== "logo") return;
-    const t = setTimeout(() => setPhase("photos"), LOGO_PHASE_MS);
-    return () => clearTimeout(t);
-  }, [phase]);
 
   useEffect(() => {
     if (phase !== "photos") return;
@@ -81,38 +74,7 @@ export function SplashScreen() {
         cursor: "pointer",
       }}
     >
-      <div
-        className="absolute inset-0 flex flex-col items-center justify-center gap-4 transition-opacity ease-in-out"
-        style={{
-          transitionDuration: `${TRANSITION_MS}ms`,
-          opacity: phase === "logo" ? 1 : 0,
-        }}
-      >
-        <div className="animate-[splash-logo-in_1s_ease-out_forwards]">
-          <Image
-            src="/brand/logo-square.png"
-            alt="Style Route crest"
-            width={96}
-            height={96}
-            priority
-            className="rounded-full"
-          />
-        </div>
-        <div className="flex flex-col items-center gap-1 opacity-0 animate-[splash-text-in_.6s_ease-out_.5s_forwards]">
-          <span className="font-serif text-2xl font-bold tracking-tight text-white">Style Route</span>
-          <span className="text-[10px] font-semibold uppercase tracking-[.3em] text-brand-gold">
-            The Way of Comfort
-          </span>
-        </div>
-      </div>
-
-      <div
-        className="absolute inset-0 transition-opacity ease-in-out"
-        style={{
-          transitionDuration: `${TRANSITION_MS}ms`,
-          opacity: phase === "logo" ? 0 : 1,
-        }}
-      >
+      <div className="absolute inset-0">
         {SLIDES.map((slide, i) => (
           <div
             key={slide.src}
@@ -132,13 +94,16 @@ export function SplashScreen() {
               style={{
                 animation: "splash-kenburns ease-out forwards",
                 animationDuration: `${SLIDE_MS + TRANSITION_MS}ms`,
-                animationDelay: `${LOGO_PHASE_MS + i * SLIDE_MS}ms`,
+                animationDelay: `${i * SLIDE_MS}ms`,
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/80 via-transparent to-brand-navy/20" />
             <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-1.5">
-              <Image src="/brand/logo-square.png" alt="" width={40} height={40} className="rounded-full" />
+              <Image src="/brand/logo-square.png" alt="" width={44} height={44} className="rounded-full" />
               <span className="font-serif text-lg font-bold tracking-tight text-white">Style Route</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[.3em] text-brand-gold">
+                The Way of Comfort
+              </span>
             </div>
           </div>
         ))}
