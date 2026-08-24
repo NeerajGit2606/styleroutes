@@ -6,8 +6,8 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Style Route",
     description: "Premium, comfort-first kidswear for boys and baby boys.",
     start_url: "/",
-    background_color: "#12181c",
-    theme_color: "#12181c",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
     icons: [
       {
         src: "/brand/logo-square.png",
