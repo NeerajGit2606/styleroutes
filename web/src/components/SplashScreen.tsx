@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
+import { shouldShowSplash } from "@/lib/splash-throttle";
 
 const SLIDES = [
   {
@@ -25,11 +26,17 @@ const EXIT_MS = 600;
 
 const absoluteFill: CSSProperties = { position: "absolute", inset: 0 };
 
+const isomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 type Phase = "logo" | "photos" | "exiting" | "done";
 
 export function SplashScreen() {
   const [phase, setPhase] = useState<Phase>("logo");
   const [slideIndex, setSlideIndex] = useState(0);
+
+  isomorphicLayoutEffect(() => {
+    if (!shouldShowSplash()) setPhase("done");
+  }, []);
 
   useEffect(() => {
     if (phase !== "logo") return;
