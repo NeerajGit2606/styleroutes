@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 const SLIDES = [
   {
@@ -21,6 +21,8 @@ const SLIDES = [
 const SLIDE_MS = 2000;
 const TRANSITION_MS = 700;
 const EXIT_MS = 600;
+
+const absoluteFill: CSSProperties = { position: "absolute", inset: 0 };
 
 type Phase = "photos" | "exiting" | "done";
 
@@ -74,14 +76,14 @@ export function SplashScreen() {
         cursor: "pointer",
       }}
     >
-      <div className="absolute inset-0">
+      <div style={absoluteFill}>
         {SLIDES.map((slide, i) => (
           <div
             key={slide.src}
-            className="absolute inset-0 transition-opacity ease-in-out"
             style={{
-              transitionDuration: `${TRANSITION_MS}ms`,
+              ...absoluteFill,
               opacity: i === slideIndex ? 1 : 0,
+              transition: `opacity ${TRANSITION_MS}ms ease-in-out`,
             }}
           >
             <Image
@@ -90,16 +92,38 @@ export function SplashScreen() {
               fill
               sizes="100vw"
               priority={i === 0}
-              className="object-cover"
               style={{
+                objectFit: "cover",
                 animation: "splash-kenburns ease-out forwards",
                 animationDuration: `${SLIDE_MS + TRANSITION_MS}ms`,
                 animationDelay: `${i * SLIDE_MS}ms`,
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/80 via-transparent to-brand-navy/20" />
-            <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-1.5">
-              <Image src="/brand/logo-square.png" alt="" width={44} height={44} className="rounded-full" />
+            <div
+              style={{
+                ...absoluteFill,
+                background: "linear-gradient(to top, rgba(18,24,28,0.8), transparent 55%, rgba(18,24,28,0.2))",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 40,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Image
+                src="/brand/logo-square.png"
+                alt=""
+                width={44}
+                height={44}
+                style={{ borderRadius: "9999px", display: "block" }}
+              />
               <span className="font-serif text-lg font-bold tracking-tight text-white">Style Route</span>
               <span className="text-[10px] font-semibold uppercase tracking-[.3em] text-brand-gold">
                 The Way of Comfort
@@ -109,7 +133,10 @@ export function SplashScreen() {
         ))}
       </div>
 
-      <span className="absolute bottom-6 right-6 text-[11px] font-semibold uppercase tracking-widest text-white/60">
+      <span
+        style={{ position: "absolute", bottom: 24, right: 24 }}
+        className="text-[11px] font-semibold uppercase tracking-widest text-white/60"
+      >
         Tap to skip
       </span>
     </div>
