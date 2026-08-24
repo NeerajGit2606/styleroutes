@@ -10,7 +10,6 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     title: "Quick Links",
     links: [
       { label: "Track Order", href: "/orders" },
-      { label: "Return & Exchange", href: "/policy/returns" },
       { label: "My Account", href: "/account" },
       { label: "Contact Us", href: "/contact" },
     ],
