@@ -96,8 +96,11 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="relative border-t border-white/10 px-4 py-4 text-center text-xs text-neutral-400">
-        © {new Date().getFullYear()} Style Route. All rights reserved.
+      <div className="relative flex flex-wrap items-center justify-center gap-x-3 border-t border-white/10 px-4 py-4 text-center text-xs text-neutral-400">
+        <span>© {new Date().getFullYear()} Style Route. All rights reserved.</span>
+        <Link href="/admin/login" className="text-neutral-500 hover:text-brand-gold">
+          Admin
+        </Link>
       </div>
     </footer>
   );
