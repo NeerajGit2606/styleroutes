@@ -1,11 +1,9 @@
-const REPEAT_AFTER_MS = 24 * 60 * 60 * 1000;
-const LAST_SHOWN_KEY = "sr_splash_last_shown";
+const SHOWN_KEY = "sr_splash_shown";
 
 export function shouldShowSplash(): boolean {
   try {
-    const last = window.localStorage.getItem(LAST_SHOWN_KEY);
-    if (last && Date.now() - Number(last) < REPEAT_AFTER_MS) return false;
-    window.localStorage.setItem(LAST_SHOWN_KEY, String(Date.now()));
+    if (window.localStorage.getItem(SHOWN_KEY)) return false;
+    window.localStorage.setItem(SHOWN_KEY, "1");
     return true;
   } catch {
     return true;

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useState, type CSSProperties } from "react";
 import { shouldShowSplash } from "@/lib/splash-throttle";
 
@@ -31,12 +32,18 @@ const isomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect :
 type Phase = "logo" | "photos" | "exiting" | "done";
 
 export function SplashScreen() {
-  const [phase, setPhase] = useState<Phase>("logo");
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+  const [phase, setPhase] = useState<Phase>(isAdminRoute ? "done" : "logo");
   const [slideIndex, setSlideIndex] = useState(0);
 
   isomorphicLayoutEffect(() => {
+    if (isAdminRoute) {
+      setPhase("done");
+      return;
+    }
     if (!shouldShowSplash()) setPhase("done");
-  }, []);
+  }, [isAdminRoute]);
 
   useEffect(() => {
     if (phase !== "logo") return;
