@@ -7,6 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String
+  ageGroup    String   @map("age_group")
+  price       Decimal  @db.Decimal(10, 2)
+  oldPrice    Decimal? @map("old_price") @db.Decimal(10, 2)
+  image       String
+  badge       String?
+  description String
+  sizes       Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("products")
+}
+
 model Order {
   id          String   @id @default(cuid())
   orderNumber String   @unique @map("order_number")

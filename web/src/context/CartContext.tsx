@@ -1,10 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Product } from "@/lib/products";
+import type { ApiProduct } from "@/lib/serialize-product";
 
 export type CartLine = {
-  product: Product;
+  product: ApiProduct;
   size: string;
   quantity: number;
 };
@@ -28,7 +28,7 @@ type CartContextValue = {
   bagOpen: boolean;
   setBagOpen: (open: boolean) => void;
   toast: string | null;
-  addToCart: (product: Product, size?: string, quantity?: number) => void;
+  addToCart: (product: ApiProduct, size?: string, quantity?: number) => void;
   removeFromCart: (index: number) => void;
   setQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
@@ -86,7 +86,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("styleroute_orders", JSON.stringify(orders));
   }, [orders, hasLoadedStorage]);
 
-  const addToCart = (product: Product, size?: string, quantity = 1) => {
+  const addToCart = (product: ApiProduct, size?: string, quantity = 1) => {
     const chosenSize = size ?? product.sizes[0] ?? "";
     setCart((items) => {
       const existingIndex = items.findIndex((line) => line.product.id === product.id && line.size === chosenSize);

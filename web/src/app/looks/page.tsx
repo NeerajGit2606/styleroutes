@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { PRODUCTS, money, photo } from "@/lib/products";
+import { money, photo } from "@/lib/products";
+import { db } from "@/lib/db";
+import { serializeProduct } from "@/lib/serialize-product";
 
 export const metadata: Metadata = {
   title: "Looks — StyleRoute",
   description: "Curated outfit ideas, put together piece by piece so you don't have to.",
 };
+
+// Product list is admin-editable, so this can't be statically generated.
+export const dynamic = "force-dynamic";
 
 const LOOKS = [
   {
@@ -26,7 +31,10 @@ const LOOKS = [
   },
 ];
 
-export default function LooksPage() {
+export default async function LooksPage() {
+  const allProductIds = [...new Set(LOOKS.flatMap((look) => look.productIds))];
+  const products = (await db.product.findMany({ where: { id: { in: allProductIds } } })).map(serializeProduct);
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-12">
       <p className="text-xs font-bold tracking-[.2em] text-brand-gold">THE EDIT</p>
@@ -35,7 +43,7 @@ export default function LooksPage() {
 
       <div className="mt-10 grid gap-12 md:grid-cols-3">
         {LOOKS.map((look) => {
-          const items = PRODUCTS.filter((product) => look.productIds.includes(product.id));
+          const items = products.filter((product) => look.productIds.includes(product.id));
           return (
             <div key={look.title}>
               <div className="relative aspect-[.8] overflow-hidden">

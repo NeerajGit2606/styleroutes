@@ -2,19 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
 import { useState } from "react";
 import { Heart, ShoppingBag, Star } from "lucide-react";
-import { PRODUCTS, money } from "@/lib/products";
+import { money } from "@/lib/products";
+import type { ApiProduct } from "@/lib/serialize-product";
 import { useCart } from "@/context/CartContext";
 
-export function ProductView() {
-  const { id } = useParams<{ id: string }>();
-  const product = PRODUCTS.find((item) => item.id === Number(id));
+export function ProductView({ product }: { product: ApiProduct }) {
   const { liked, toggleLike, addToCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState(product?.sizes[0] ?? "");
-
-  if (!product) notFound();
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0] ?? "");
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">

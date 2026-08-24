@@ -4,7 +4,7 @@ import { Package } from "lucide-react";
 import { db } from "@/lib/db";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { AdminOrderRow } from "@/components/AdminOrderRow";
-import { AdminLogoutButton } from "@/components/AdminLogoutButton";
+import { AdminNav } from "@/components/AdminNav";
 
 export const metadata: Metadata = {
   title: "Admin — Orders — StyleRoute",
@@ -17,12 +17,12 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12">
+      <AdminNav active="orders" />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-[-.04em]">All orders</h1>
           <p className="mt-1 text-sm text-neutral-500">{orders.length} order{orders.length === 1 ? "" : "s"} total</p>
         </div>
-        <AdminLogoutButton />
       </div>
 
       {orders.length === 0 ? (

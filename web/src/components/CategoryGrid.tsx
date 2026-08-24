@@ -5,19 +5,18 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Heart } from "lucide-react";
 import { useMemo, useState } from "react";
-import { PRODUCTS, money, type AgeGroup } from "@/lib/products";
+import { money } from "@/lib/products";
+import type { ApiProduct } from "@/lib/serialize-product";
 import { useCart } from "@/context/CartContext";
 
 type Sort = "featured" | "price-asc" | "price-desc";
 
-export function CategoryGrid({ title, tag, ageGroup }: { title: string; tag: string; ageGroup: AgeGroup }) {
+export function CategoryGrid({ title, tag, products: ageGroupProducts }: { title: string; tag: string; products: ApiProduct[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const categoryFromUrl = searchParams.get("category") ?? "All";
   const [sort, setSort] = useState<Sort>("featured");
   const { liked, toggleLike, addToCart } = useCart();
-
-  const ageGroupProducts = useMemo(() => PRODUCTS.filter((product) => product.ageGroup === ageGroup), [ageGroup]);
 
   const filters = useMemo(() => ["All", ...new Set(ageGroupProducts.map((product) => product.category))], [ageGroupProducts]);
 

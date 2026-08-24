@@ -1,18 +1,3 @@
-export type AgeGroup = "Boys" | "Baby Boy";
-
-export type Product = {
-  id: number;
-  name: string;
-  category: string;
-  ageGroup: AgeGroup;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  badge?: string;
-  description: string;
-  sizes: string[];
-};
-
 export const photo = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`;
 
 export const FREE_SHIPPING_THRESHOLD = 999;
@@ -21,7 +6,7 @@ export const SHIPPING_FEE = 99;
 const BOY_SIZES = ["2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-11Y"];
 const BABY_SIZES = ["0-6M", "6-12M", "12-18M", "18-24M"];
 
-export const PRODUCTS: Product[] = [
+export const PRODUCTS = [
   {
     id: 1,
     name: "Skyline Graphic Tee",
