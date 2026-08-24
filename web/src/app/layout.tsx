@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
@@ -27,6 +27,10 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Style Route — The Way of Comfort",
   description: "Premium, comfort-first kidswear for boys and baby boys.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#12181c",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
