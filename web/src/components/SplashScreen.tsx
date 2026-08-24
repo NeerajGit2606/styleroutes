@@ -18,8 +18,10 @@ const SLIDES = [
   },
 ];
 
-const LOGO_PHASE_MS = 1200;
-const SLIDE_MS = 700;
+const LOGO_PHASE_MS = 2000;
+const SLIDE_MS = 2000;
+const TRANSITION_MS = 700;
+const EXIT_MS = 600;
 
 type Phase = "logo" | "photos" | "exiting" | "done";
 
@@ -45,7 +47,7 @@ export function SplashScreen() {
 
   useEffect(() => {
     if (phase !== "exiting") return;
-    const t = setTimeout(() => setPhase("done"), 400);
+    const t = setTimeout(() => setPhase("done"), EXIT_MS);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -65,14 +67,26 @@ export function SplashScreen() {
       role="dialog"
       aria-label="Welcome to Style Route"
       onClick={skip}
-      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center overflow-hidden bg-brand-navy transition-opacity duration-[400ms] ${
-        phase === "exiting" ? "opacity-0" : "opacity-100"
-      }`}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        backgroundColor: "#12181c",
+        opacity: phase === "exiting" ? 0 : 1,
+        transition: `opacity ${EXIT_MS}ms ease`,
+        cursor: "pointer",
+      }}
     >
       <div
-        className={`absolute inset-0 flex flex-col items-center justify-center gap-4 transition-opacity duration-500 ${
-          phase === "logo" ? "opacity-100" : "opacity-0"
-        }`}
+        className="absolute inset-0 flex flex-col items-center justify-center gap-4 transition-opacity ease-in-out"
+        style={{
+          transitionDuration: `${TRANSITION_MS}ms`,
+          opacity: phase === "logo" ? 1 : 0,
+        }}
       >
         <div className="animate-[splash-logo-in_1s_ease-out_forwards]">
           <Image
@@ -93,16 +107,20 @@ export function SplashScreen() {
       </div>
 
       <div
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          phase === "logo" ? "opacity-0" : "opacity-100"
-        }`}
+        className="absolute inset-0 transition-opacity ease-in-out"
+        style={{
+          transitionDuration: `${TRANSITION_MS}ms`,
+          opacity: phase === "logo" ? 0 : 1,
+        }}
       >
         {SLIDES.map((slide, i) => (
           <div
             key={slide.src}
-            className={`absolute inset-0 transition-opacity duration-500 ${
-              i === slideIndex ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute inset-0 transition-opacity ease-in-out"
+            style={{
+              transitionDuration: `${TRANSITION_MS}ms`,
+              opacity: i === slideIndex ? 1 : 0,
+            }}
           >
             <Image
               src={slide.src}
@@ -110,7 +128,12 @@ export function SplashScreen() {
               fill
               sizes="100vw"
               priority={i === 0}
-              className="animate-[splash-kenburns_2.2s_ease-out_forwards] object-cover"
+              className="object-cover"
+              style={{
+                animation: "splash-kenburns ease-out forwards",
+                animationDuration: `${SLIDE_MS + TRANSITION_MS}ms`,
+                animationDelay: `${LOGO_PHASE_MS + i * SLIDE_MS}ms`,
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/80 via-transparent to-brand-navy/20" />
             <div className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-1.5">
