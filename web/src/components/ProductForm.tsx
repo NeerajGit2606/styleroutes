@@ -4,10 +4,17 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { ApiProduct } from "@/lib/serialize-product";
 
+const CATEGORY_OPTIONS = ["T-Shirt", "Shirt", "Shorts", "Pants", "Sets", "Dungaree"] as const;
+const AGE_GROUP_OPTIONS = [
+  { value: "Newborn", label: "Newborn (0-36 Months)" },
+  { value: "Toddler", label: "Toddler (1-5 Yrs)" },
+  { value: "Kids", label: "Kids (4-14 Yrs)" },
+] as const;
+
 type FormState = {
   name: string;
   category: string;
-  ageGroup: "Boys" | "Baby Boy";
+  ageGroup: "Newborn" | "Toddler" | "Kids";
   price: string;
   oldPrice: string;
   image: string;
@@ -18,8 +25,8 @@ type FormState = {
 
 const toFormState = (product?: ApiProduct): FormState => ({
   name: product?.name ?? "",
-  category: product?.category ?? "",
-  ageGroup: (product?.ageGroup as FormState["ageGroup"]) ?? "Boys",
+  category: product?.category ?? CATEGORY_OPTIONS[0],
+  ageGroup: (product?.ageGroup as FormState["ageGroup"]) ?? "Newborn",
   price: product ? String(product.price) : "",
   oldPrice: product?.oldPrice != null ? String(product.oldPrice) : "",
   image: product?.image ?? "",
@@ -86,7 +93,18 @@ export function ProductForm({ product }: { product?: ApiProduct }) {
     <form onSubmit={handleSubmit} className="mt-9 max-w-2xl space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField label="Name" value={form.name} onChange={updateField("name")} full />
-        <TextField label="Category" value={form.category} onChange={updateField("category")} placeholder="T-Shirts, Shorts, Onesies…" />
+        <div>
+          <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-neutral-500">Category</label>
+          <select
+            value={form.category}
+            onChange={updateField("category")}
+            className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black"
+          >
+            {CATEGORY_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-neutral-500">Age group</label>
           <select
@@ -94,8 +112,9 @@ export function ProductForm({ product }: { product?: ApiProduct }) {
             onChange={updateField("ageGroup")}
             className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black"
           >
-            <option value="Boys">Boys</option>
-            <option value="Baby Boy">Baby Boy</option>
+            {AGE_GROUP_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
           </select>
         </div>
         <TextField label="Price (₹)" type="number" value={form.price} onChange={updateField("price")} />

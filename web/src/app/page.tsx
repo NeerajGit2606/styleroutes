@@ -7,7 +7,7 @@ import { HomeView } from "@/components/HomeView";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const newArrivals = await db.product.findMany({ where: { ageGroup: "Boys" }, orderBy: { id: "asc" } });
+  const newArrivals = await db.product.findMany({ orderBy: { createdAt: "desc" }, take: 12 });
 
   return <HomeView newArrivals={newArrivals.map(serializeProduct)} />;
 }

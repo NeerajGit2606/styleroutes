@@ -5,18 +5,26 @@ import { Heart, Menu, Plus, Search, ShoppingBag, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { BrandMark } from "@/components/BrandMark";
 
+const CATEGORY_LINKS = ["T-Shirt", "Shirt", "Shorts", "Pants", "Sets", "Dungaree"];
+
 const NAV_LINKS = [
   {
-    label: "Boys",
-    href: "/boys",
-    tag: "2-16 Yrs",
-    children: ["T-Shirts", "Shirts", "Shorts", "Bottoms"],
+    label: "Newborn",
+    href: "/newborn",
+    tag: "0-36 Months",
+    children: CATEGORY_LINKS,
   },
   {
-    label: "Baby Boy",
-    href: "/baby-boy",
-    tag: "6-24 Months",
-    children: ["Rompers", "Onesies", "Dungarees", "Sleepsuits", "T-Shirts", "Shorts"],
+    label: "Toddler",
+    href: "/toddler",
+    tag: "1-5 Yrs",
+    children: CATEGORY_LINKS,
+  },
+  {
+    label: "Kids",
+    href: "/kids",
+    tag: "4-14 Yrs",
+    children: CATEGORY_LINKS,
   },
   { label: "Looks", href: "/looks" },
   { label: "About", href: "/about" },

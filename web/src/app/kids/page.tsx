@@ -5,19 +5,19 @@ import { serializeProduct } from "@/lib/serialize-product";
 import { CategoryGrid } from "@/components/CategoryGrid";
 
 export const metadata: Metadata = {
-  title: "Baby Boy Clothing (6-24 Months) — StyleRoute",
-  description: "Soft, comfortable rompers, onesies, and everyday wear for baby boys aged 6-24 months.",
+  title: "Kids Clothing (4-14 Yrs) — StyleRoute",
+  description: "Shop comfortable, stylish clothing for kids aged 4-14 years at StyleRoute.",
 };
 
 // Product list is admin-editable, so this can't be statically generated.
 export const dynamic = "force-dynamic";
 
-export default async function BabyBoyPage() {
-  const products = await db.product.findMany({ where: { ageGroup: "Baby Boy" }, orderBy: { id: "asc" } });
+export default async function KidsPage() {
+  const products = await db.product.findMany({ where: { ageGroup: "Kids" }, orderBy: { id: "asc" } });
 
   return (
     <Suspense>
-      <CategoryGrid title="Baby Boy" tag="6-24 Months" products={products.map(serializeProduct)} />
+      <CategoryGrid title="Kids" tag="4-14 Yrs" products={products.map(serializeProduct)} />
     </Suspense>
   );
 }
