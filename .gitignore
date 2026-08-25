@@ -1,3 +1,9 @@
 node_modules
 .env
 build
+
+# scratch demo/verification media, not repo content
+*.mp4
+*.webm
+/mobile-screens/
+/web/StyleRoutelive-boys-check.png
