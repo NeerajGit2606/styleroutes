@@ -36,3 +36,15 @@ model Order {
 
   @@map("orders")
 }
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String
+  message   String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("enquiries")
+}

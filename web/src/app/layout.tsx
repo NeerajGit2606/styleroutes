@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AddedToast } from "@/components/AddedToast";
+import { EnquiryModal } from "@/components/EnquiryModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
           <CartDrawer />
           <AddedToast />
+          <EnquiryModal />
         </CartProvider>
       </body>
     </html>

@@ -54,3 +54,37 @@ export async function sendOrderNotificationEmail(order: {
     console.error("Order notification email failed:", error);
   }
 }
+
+export async function sendEnquiryNotificationEmail(enquiry: {
+  name: string;
+  contact: string;
+  message?: string;
+  latitude?: number;
+  longitude?: number;
+}) {
+  if (!transporter) return;
+
+  const text = [
+    "New enquiry submitted on StyleRoute",
+    "",
+    `Name: ${enquiry.name}`,
+    `Contact: ${enquiry.contact}`,
+    enquiry.message ? `Message: ${enquiry.message}` : null,
+    enquiry.latitude != null && enquiry.longitude != null
+      ? `Location: https://maps.google.com/?q=${enquiry.latitude},${enquiry.longitude}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    await transporter.sendMail({
+      from: `"StyleRoute" <${process.env.EMAIL_USER}>`,
+      to: SUPPORT_EMAIL,
+      subject: `New enquiry — ${enquiry.name}`,
+      text,
+    });
+  } catch (error) {
+    console.error("Enquiry notification email failed:", error);
+  }
+}

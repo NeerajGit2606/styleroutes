@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminLogoutButton } from "@/components/AdminLogoutButton";
 
-export function AdminNav({ active }: { active: "orders" | "products" }) {
+export function AdminNav({ active }: { active: "orders" | "products" | "enquiries" }) {
   return (
     <div className="mb-8 flex items-center justify-between border-b border-neutral-200 pb-4">
       <nav className="flex gap-6">
@@ -16,6 +16,12 @@ export function AdminNav({ active }: { active: "orders" | "products" }) {
           className={`text-xs font-bold uppercase tracking-widest ${active === "products" ? "text-black" : "text-neutral-400 hover:text-black"}`}
         >
           Products
+        </Link>
+        <Link
+          href="/admin/enquiries"
+          className={`text-xs font-bold uppercase tracking-widest ${active === "enquiries" ? "text-black" : "text-neutral-400 hover:text-black"}`}
+        >
+          Enquiries
         </Link>
       </nav>
       <AdminLogoutButton />
