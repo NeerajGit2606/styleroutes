@@ -48,14 +48,24 @@ export function EnquiryModal() {
       // in their details, rather than the moment the card opens — so the
       // native permission prompt shows up as part of submitting, not
       // before they've engaged with the form at all.
-      if (navigator.geolocation) {
-        location.current = await new Promise((resolve) => {
+      //
+      // On a *first-time* grant, the tab briefly loses visibility while
+      // the native permission dialog is up, and the pending request that
+      // triggered it can come back empty right as the dialog closes. A
+      // second, fresh call — now that the permission decision is already
+      // settled and the tab is visible again — reliably succeeds where
+      // the first one didn't, so we give it one retry before giving up.
+      const requestLocation = () =>
+        new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
           navigator.geolocation.getCurrentPosition(
             (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
             () => resolve(null),
             { timeout: 10000 },
           );
         });
+
+      if (navigator.geolocation) {
+        location.current = (await requestLocation()) ?? (await requestLocation());
       }
 
       const res = await fetch("/api/enquiries", {
