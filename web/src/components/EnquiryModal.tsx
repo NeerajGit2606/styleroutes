@@ -24,17 +24,6 @@ export function EnquiryModal() {
     if (skip) return;
     if (localStorage.getItem(DISMISSED_KEY)) return;
 
-    // Asking for location here (rather than only on submit) is what
-    // triggers the browser's native "share your location" permission
-    // prompt as soon as the enquiry card appears, not buried in a click.
-    navigator.geolocation?.getCurrentPosition(
-      (position) => {
-        location.current = { latitude: position.coords.latitude, longitude: position.coords.longitude };
-      },
-      () => {},
-      { timeout: 8000 },
-    );
-
     const timer = setTimeout(() => setOpen(true), OPEN_DELAY_MS);
     return () => clearTimeout(timer);
   }, [skip]);
@@ -55,16 +44,16 @@ export function EnquiryModal() {
 
     setSubmitting(true);
     try {
-      // The mount-time request may not have resolved yet if the visitor
-      // fills the form quickly — permission is usually already decided
-      // by now, so this second call just waits briefly for the GPS fix
-      // instead of submitting with a location we haven't received yet.
-      if (!location.current && navigator.geolocation) {
+      // Location is asked for here, after the visitor has already filled
+      // in their details, rather than the moment the card opens — so the
+      // native permission prompt shows up as part of submitting, not
+      // before they've engaged with the form at all.
+      if (navigator.geolocation) {
         location.current = await new Promise((resolve) => {
           navigator.geolocation.getCurrentPosition(
             (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
             () => resolve(null),
-            { timeout: 4000 },
+            { timeout: 10000 },
           );
         });
       }
