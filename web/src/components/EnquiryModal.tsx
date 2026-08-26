@@ -55,6 +55,20 @@ export function EnquiryModal() {
 
     setSubmitting(true);
     try {
+      // The mount-time request may not have resolved yet if the visitor
+      // fills the form quickly — permission is usually already decided
+      // by now, so this second call just waits briefly for the GPS fix
+      // instead of submitting with a location we haven't received yet.
+      if (!location.current && navigator.geolocation) {
+        location.current = await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude }),
+            () => resolve(null),
+            { timeout: 4000 },
+          );
+        });
+      }
+
       const res = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
