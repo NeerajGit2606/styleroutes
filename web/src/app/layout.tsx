@@ -24,13 +24,54 @@ const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://styleroute.co.in";
+
 export const metadata: Metadata = {
-  title: "Style Route — The Way of Comfort",
-  description: "Premium, comfort-first kidswear for boys and baby boys.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Style Route — The Way of Comfort",
+    template: "%s — Style Route",
+  },
+  description: "Style Route — premium, comfort-first kidswear for newborns, toddlers, and kids. Tees, shirts, shorts, pants, sets, and dungarees built for every big day.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Style Route",
+    title: "Style Route — The Way of Comfort",
+    description: "Premium, comfort-first kidswear for newborns, toddlers, and kids.",
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Style Route",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.png`,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Style Route",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${SITE_URL}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -40,6 +81,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <CartProvider>
           <AnnouncementBar />
           <Header />

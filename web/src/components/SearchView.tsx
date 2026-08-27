@@ -3,12 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Search as SearchIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { money } from "@/lib/products";
 import type { ApiProduct } from "@/lib/serialize-product";
 
 export function SearchView({ products }: { products: ApiProduct[] }) {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
 
   const results = useMemo(() => {
     const term = query.trim().toLowerCase();
