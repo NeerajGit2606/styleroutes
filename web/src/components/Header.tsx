@@ -64,7 +64,7 @@ export function Header() {
               Style Route
             </span>
             <span className="mt-1 hidden text-[10px] font-semibold uppercase tracking-[.2em] text-brand-gold sm:block">
-              The Way of Comfort
+              Where Style Meets Comfort
             </span>
           </span>
         </Link>

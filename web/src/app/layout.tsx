@@ -29,7 +29,7 @@ const SITE_URL = "https://styleroute.co.in";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Style Route — The Way of Comfort",
+    default: "Style Route — Where Style Meets Comfort",
     template: "%s — Style Route",
   },
   description: "Style Route — premium, comfort-first kidswear for newborns, toddlers, and kids. Tees, shirts, shorts, pants, sets, and dungarees built for every big day.",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     type: "website",
     url: SITE_URL,
     siteName: "Style Route",
-    title: "Style Route — The Way of Comfort",
+    title: "Style Route — Where Style Meets Comfort",
     description: "Premium, comfort-first kidswear for newborns, toddlers, and kids.",
   },
 };

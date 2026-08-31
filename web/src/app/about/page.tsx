@@ -50,6 +50,42 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="bg-brand-cream py-20">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-bold tracking-[.2em] text-brand-gold">OUR DIRECTION</p>
+            <h2 className="mt-2 text-3xl font-black uppercase tracking-[-.04em]">Vision &amp; mission</h2>
+            <p className="mt-5 leading-7 text-neutral-600">
+              To build Style Route into a trusted and recognizable kidswear brand known for style, comfort, quality, and dependable service — creating well-designed garments that balance fashion, comfort, and value while growing long-term relationships with every customer and partner.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Customer First", body: "We listen, understand requirements, and focus on lasting relationships." },
+              { title: "Quality Mindset", body: "We pay attention to fabric, fit, stitching, finishing, and presentation." },
+              { title: "Innovation", body: "We continuously look for better designs, processes, and product ideas." },
+              { title: "Reliability", body: "We value clear communication, responsible commitments, and consistency." },
+              { title: "Teamwork", body: "We believe strong collaboration creates stronger products and partnerships." },
+              { title: "Growth", body: "We aim for sustainable, long-term growth through continuous improvement." },
+            ].map((value) => (
+              <div key={value.title} className="bg-white p-6">
+                <h3 className="text-sm font-black uppercase tracking-wide">{value.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-neutral-600">{value.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-16 text-center">
+            <p className="text-xs font-bold tracking-[.2em] text-brand-gold">LEADERSHIP</p>
+            <h3 className="mt-2 text-xl font-black uppercase tracking-[-.03em]">Rinku &amp; Anshul</h3>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-neutral-600">
+              Managing Directors, responsible for Style Route&rsquo;s strategic direction, brand development, and the relationships that help it grow.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-brand-navy py-16 text-center text-white">
         <p className="text-xs font-bold tracking-[.2em] text-brand-gold">GOT QUESTIONS?</p>
         <h2 className="mt-2 text-2xl font-black uppercase tracking-[-.03em]">We&rsquo;d love to hear from you</h2>
