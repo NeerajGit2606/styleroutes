@@ -8,6 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AddedToast } from "@/components/AddedToast";
 import { EnquiryModal } from "@/components/EnquiryModal";
+import { SITE_URL, SUPPORT_EMAIL, SUPPORT_PHONE_TEL } from "@/lib/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,8 +24,6 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
 });
-
-const SITE_URL = "https://styleroute.co.in";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -58,6 +57,12 @@ const structuredData = {
       name: "Style Route",
       url: SITE_URL,
       logo: `${SITE_URL}/icon.png`,
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer service",
+        telephone: SUPPORT_PHONE_TEL,
+        email: SUPPORT_EMAIL,
+      },
     },
     {
       "@type": "WebSite",

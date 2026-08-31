@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
-
-const BASE_URL = "https://styleroute.co.in";
+import { SITE_URL as BASE_URL } from "@/lib/config";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await db.product.findMany({ select: { id: true } });
