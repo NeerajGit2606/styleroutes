@@ -1,6 +1,6 @@
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import type { Metadata } from "next";
-import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_TEL } from "@/lib/config";
+import { SUPPORT_ADDRESS_TEXT, SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_TEL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Contact Us — StyleRoute",
@@ -40,8 +40,8 @@ export default function ContactPage() {
           <div className="flex items-start gap-4">
             <MapPin size={20} className="mt-1 shrink-0 text-brand-gold" />
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Based in</p>
-              <p className="mt-1 font-bold">India</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Address</p>
+              <p className="mt-1 font-bold">{SUPPORT_ADDRESS_TEXT}</p>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AddedToast } from "@/components/AddedToast";
 import { EnquiryModal } from "@/components/EnquiryModal";
-import { SITE_URL, SUPPORT_EMAIL, SUPPORT_PHONE_TEL } from "@/lib/config";
+import { SITE_URL, SUPPORT_ADDRESS, SUPPORT_EMAIL, SUPPORT_PHONE_TEL } from "@/lib/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +57,14 @@ const structuredData = {
       name: "Style Route",
       url: SITE_URL,
       logo: `${SITE_URL}/icon.png`,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: SUPPORT_ADDRESS.line1,
+        addressLocality: SUPPORT_ADDRESS.locality,
+        addressRegion: SUPPORT_ADDRESS.region,
+        postalCode: SUPPORT_ADDRESS.postalCode,
+        addressCountry: SUPPORT_ADDRESS.country,
+      },
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer service",
