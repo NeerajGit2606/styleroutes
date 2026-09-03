@@ -33,7 +33,7 @@ type CartContextValue = {
   setQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
   toggleLike: (productId: number) => void;
-  placeOrder: (customer: OrderCustomer, shipping: number) => Order;
+  placeOrder: (customer: OrderCustomer, shipping: number, id?: string) => Order;
   total: number;
 };
 
@@ -125,9 +125,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const total = cart.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
 
-  const placeOrder = (customer: OrderCustomer, shipping: number): Order => {
+  const placeOrder = (customer: OrderCustomer, shipping: number, id?: string): Order => {
     const order: Order = {
-      id: `SR${Date.now().toString().slice(-8)}`,
+      id: id ?? `SR${Date.now().toString().slice(-8)}`,
       date: new Date().toISOString(),
       items: cart,
       subtotal: total,

@@ -25,11 +25,51 @@ const EMPTY_FORM: FormState = { name: "", phone: "", address: "", city: "", stat
 // error found here is also the first one the customer would see on screen.
 const FIELD_ORDER: (keyof FormState)[] = ["name", "phone", "pincode", "address", "city", "state"];
 
+type RazorpayResponse = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+
+type RazorpayOptions = {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description?: string;
+  order_id: string;
+  prefill?: { name?: string; contact?: string };
+  theme?: { color?: string };
+  handler: (response: RazorpayResponse) => void;
+  modal?: { ondismiss?: () => void };
+};
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function CheckoutPage() {
   const { cart, total, placeOrder } = useCart();
   const router = useRouter();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [onlinePaymentEnabled, setOnlinePaymentEnabled] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
+  const [processing, setProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // Pre-fill from a saved account profile, if the user set one up earlier —
   // saves them re-typing the same shipping details on their next order.
@@ -39,6 +79,20 @@ export default function CheckoutPage() {
     const { name, phone, address, city, state, pincode } = JSON.parse(savedProfile);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({ name, phone, address, city, state, pincode });
+  }, []);
+
+  // Online payment only shows up once Razorpay keys are configured on the
+  // server — until then, checkout silently stays Cash on Delivery only.
+  useEffect(() => {
+    fetch("/api/payment/create-order")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.enabled) {
+          setOnlinePaymentEnabled(true);
+          setPaymentMethod("online");
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const shipping = total === 0 || total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
@@ -60,16 +114,31 @@ export default function CheckoutPage() {
     return next;
   };
 
-  const handlePlaceOrder = () => {
-    const validationErrors = validate();
-    const firstErrorField = FIELD_ORDER.find((field) => validationErrors[field]);
-    if (firstErrorField) {
-      const el = document.getElementById(`checkout-${firstErrorField}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      el?.focus();
-      return;
-    }
+  const sendOrderToWhatsapp = (order: ReturnType<typeof placeOrder>, paymentLine: string) => {
+    const { name, phone, address, city, state, pincode } = order.customer;
+    const lines = order.items
+      .map((line) => `• ${line.product.name} (Size ${line.size}) x${line.quantity} — ${money(line.product.price * line.quantity)}`)
+      .join("\n");
+    const message = [
+      `New order from StyleRoute website — ${order.id}`,
+      "",
+      lines,
+      "",
+      `Subtotal: ${money(order.subtotal)}`,
+      `Shipping: ${order.shipping === 0 ? "Free" : money(order.shipping)}`,
+      `Total: ${money(order.total)}`,
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone}`,
+      `Address: ${address}, ${city}, ${state} - ${pincode}`,
+      "",
+      paymentLine,
+    ].join("\n");
 
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+  };
+
+  const placeCodOrder = () => {
     const { name, phone, address, city, state, pincode } = form;
     const order = placeOrder({ name, phone, address, city, state, pincode }, shipping);
 
@@ -92,27 +161,99 @@ export default function CheckoutPage() {
       keepalive: true,
     }).catch(() => {});
 
-    const lines = order.items
-      .map((line) => `• ${line.product.name} (Size ${line.size}) x${line.quantity} — ${money(line.product.price * line.quantity)}`)
-      .join("\n");
-    const message = [
-      `New order from StyleRoute website — ${order.id}`,
-      "",
-      lines,
-      "",
-      `Subtotal: ${money(order.subtotal)}`,
-      `Shipping: ${order.shipping === 0 ? "Free" : money(order.shipping)}`,
-      `Total: ${money(order.total)}`,
-      "",
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      `Address: ${address}, ${city}, ${state} - ${pincode}`,
-      "",
-      "Payment: Cash on Delivery (to be confirmed)",
-    ].join("\n");
-
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+    sendOrderToWhatsapp(order, "Payment: Cash on Delivery (to be confirmed)");
     router.push(`/order-confirmed?order=${order.id}`);
+  };
+
+  const placeOnlineOrder = async () => {
+    setPaymentError(null);
+    setProcessing(true);
+    try {
+      const orderId = `SR${Date.now().toString().slice(-8)}`;
+
+      const [createRes, scriptLoaded] = await Promise.all([
+        fetch("/api/payment/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: grandTotal, receipt: orderId }),
+        }),
+        loadRazorpayScript(),
+      ]);
+
+      if (!createRes.ok || !scriptLoaded || !window.Razorpay) {
+        setPaymentError("Couldn't start online payment right now. Please try Cash on Delivery instead.");
+        setProcessing(false);
+        return;
+      }
+
+      const { orderId: razorpayOrderId, amount, currency, keyId } = await createRes.json();
+      const { name, phone } = form;
+
+      const razorpay = new window.Razorpay({
+        key: keyId,
+        amount,
+        currency,
+        name: "Style Route",
+        description: `Order ${orderId}`,
+        order_id: razorpayOrderId,
+        prefill: { name, contact: phone },
+        theme: { color: "#c6a15a" },
+        modal: {
+          ondismiss: () => setProcessing(false),
+        },
+        handler: async (response) => {
+          const { name, phone, address, city, state, pincode } = form;
+          const order = placeOrder({ name, phone, address, city, state, pincode }, shipping, orderId);
+
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...response,
+              order: {
+                orderNumber: order.id,
+                items: order.items,
+                customer: order.customer,
+                subtotal: order.subtotal,
+                shipping: order.shipping,
+                total: order.total,
+              },
+            }),
+            keepalive: true,
+          }).catch(() => null);
+
+          if (!verifyRes?.ok) {
+            setPaymentError("Payment went through, but confirming it failed — please contact us with your payment reference.");
+            setProcessing(false);
+            return;
+          }
+
+          sendOrderToWhatsapp(order, `Payment: Paid online (Razorpay payment ${response.razorpay_payment_id})`);
+          router.push(`/order-confirmed?order=${order.id}`);
+        },
+      });
+      razorpay.open();
+    } catch {
+      setPaymentError("Couldn't start online payment right now. Please try Cash on Delivery instead.");
+      setProcessing(false);
+    }
+  };
+
+  const handlePlaceOrder = () => {
+    const validationErrors = validate();
+    const firstErrorField = FIELD_ORDER.find((field) => validationErrors[field]);
+    if (firstErrorField) {
+      const el = document.getElementById(`checkout-${firstErrorField}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.focus();
+      return;
+    }
+
+    if (paymentMethod === "online" && onlinePaymentEnabled) {
+      placeOnlineOrder();
+    } else {
+      placeCodOrder();
+    }
   };
 
   if (cart.length === 0) {
@@ -145,9 +286,45 @@ export default function CheckoutPage() {
           </div>
 
           <div className="mt-8 border border-neutral-200 p-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Payment</p>
-            <p className="mt-2 text-sm font-bold">Cash on Delivery</p>
-            <p className="mt-1 text-xs text-neutral-500">We&rsquo;ll confirm your order and delivery details over WhatsApp after you place it.</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-500">Payment</p>
+
+            {onlinePaymentEnabled ? (
+              <div className="space-y-2">
+                <label className="flex cursor-pointer items-start gap-3 border border-neutral-200 p-3 has-[:checked]:border-black">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    checked={paymentMethod === "online"}
+                    onChange={() => setPaymentMethod("online")}
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold">Pay online</span>
+                    <span className="block text-xs text-neutral-500">UPI, cards, netbanking &amp; wallets — via Razorpay.</span>
+                  </span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 border border-neutral-200 p-3 has-[:checked]:border-black">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    checked={paymentMethod === "cod"}
+                    onChange={() => setPaymentMethod("cod")}
+                    className="mt-1"
+                  />
+                  <span>
+                    <span className="block text-sm font-bold">Cash on Delivery</span>
+                    <span className="block text-xs text-neutral-500">We&rsquo;ll confirm your order over WhatsApp after you place it.</span>
+                  </span>
+                </label>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm font-bold">Cash on Delivery</p>
+                <p className="mt-1 text-xs text-neutral-500">We&rsquo;ll confirm your order and delivery details over WhatsApp after you place it.</p>
+              </>
+            )}
+
+            {paymentError && <p className="mt-3 text-xs font-bold text-red-600">{paymentError}</p>}
           </div>
         </div>
 
@@ -185,9 +362,10 @@ export default function CheckoutPage() {
 
           <button
             onClick={handlePlaceOrder}
-            className="mt-5 w-full bg-brand-gold py-4 text-sm font-black uppercase tracking-wider hover:bg-black hover:text-white"
+            disabled={processing}
+            className="mt-5 w-full bg-brand-gold py-4 text-sm font-black uppercase tracking-wider hover:bg-black hover:text-white disabled:opacity-60"
           >
-            Place order via WhatsApp
+            {processing ? "Processing…" : paymentMethod === "online" && onlinePaymentEnabled ? "Pay & place order" : "Place order via WhatsApp"}
           </button>
         </div>
       </div>

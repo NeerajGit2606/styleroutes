@@ -18,6 +18,8 @@ export function AdminOrderRow({
   customer,
   total,
   status,
+  paymentMethod,
+  paymentStatus,
 }: {
   id: string;
   orderNumber: string;
@@ -26,6 +28,8 @@ export function AdminOrderRow({
   customer: OrderCustomer;
   total: number;
   status: string;
+  paymentMethod: string;
+  paymentStatus: string;
 }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -56,6 +60,13 @@ export function AdminOrderRow({
           <p className="mt-1 text-xs text-neutral-500">
             {new Date(createdAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
           </p>
+          <span
+            className={`mt-2 inline-block rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${
+              paymentStatus === "Paid" ? "bg-green-100 text-green-700" : "bg-neutral-100 text-neutral-600"
+            }`}
+          >
+            {paymentMethod === "Prepaid" ? "Paid online" : "Cash on Delivery"}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <select

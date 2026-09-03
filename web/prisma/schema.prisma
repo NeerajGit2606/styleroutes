@@ -32,6 +32,10 @@ model Order {
   shipping    Decimal  @db.Decimal(10, 2)
   total       Decimal  @db.Decimal(10, 2)
   status      String   @default("Awaiting confirmation")
+  paymentMethod   String  @default("COD") @map("payment_method")
+  paymentStatus   String  @default("Pending") @map("payment_status")
+  razorpayOrderId String? @map("razorpay_order_id")
+  razorpayPaymentId String? @map("razorpay_payment_id")
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("orders")

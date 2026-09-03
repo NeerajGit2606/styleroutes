@@ -44,6 +44,8 @@ export default async function AdminOrdersPage() {
               customer={order.customer as any}
               total={Number(order.total)}
               status={order.status}
+              paymentMethod={order.paymentMethod}
+              paymentStatus={order.paymentStatus}
             />
           ))}
         </div>
