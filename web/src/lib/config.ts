@@ -17,3 +17,9 @@ export const SUPPORT_ADDRESS = {
 };
 
 export const SUPPORT_ADDRESS_TEXT = `${SUPPORT_ADDRESS.line1}, ${SUPPORT_ADDRESS.locality}, ${SUPPORT_ADDRESS.region}, ${SUPPORT_ADDRESS.country} - ${SUPPORT_ADDRESS.postalCode}`;
+
+export const SOCIAL_LINKS = {
+  facebook: "https://www.facebook.com/share/1DZdQq7paW/?mibextid=wwXIfr",
+  instagram: "https://www.instagram.com/styleroute.kids",
+  twitter: "https://x.com/styleroutekids",
+};

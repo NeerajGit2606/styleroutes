@@ -78,7 +78,10 @@ export default function AboutPage() {
 
           <div className="mt-16 text-center">
             <p className="text-xs font-bold tracking-[.2em] text-brand-gold">LEADERSHIP</p>
-            <h3 className="mt-2 text-xl font-black uppercase tracking-[-.03em]">Rinku &amp; Anshul</h3>
+            <div className="relative mx-auto mt-6 aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-sm shadow-xl">
+              <Image src="/brand/leadership.jpeg" alt="Anshul and Rinku Aggarwal, Style Route Company Directors" fill sizes="(max-width: 768px) 90vw, 672px" className="object-cover" priority />
+            </div>
+            <h3 className="mt-6 text-xl font-black uppercase tracking-[-.03em]">Rinku &amp; Anshul Aggarwal</h3>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-neutral-600">
               Managing Directors, responsible for Style Route&rsquo;s strategic direction, brand development, and the relationships that help it grow.
             </p>

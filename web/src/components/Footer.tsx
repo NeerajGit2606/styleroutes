@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { SocialIcon } from "@/components/SocialIcon";
 import { BrandMark } from "@/components/BrandMark";
+import { SOCIAL_LINKS } from "@/lib/config";
 
 const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
   {
@@ -89,10 +90,15 @@ export function Footer() {
           )}
 
           <div className="mt-8 flex gap-4">
-            <SocialIcon name="facebook" />
-            <SocialIcon name="twitter" />
-            <SocialIcon name="instagram" />
-            <SocialIcon name="linkedin" />
+            <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Style Route on Facebook" className="hover:text-brand-gold">
+              <SocialIcon name="facebook" />
+            </a>
+            <a href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" aria-label="Style Route on X" className="hover:text-brand-gold">
+              <SocialIcon name="twitter" />
+            </a>
+            <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Style Route on Instagram" className="hover:text-brand-gold">
+              <SocialIcon name="instagram" />
+            </a>
           </div>
         </div>
       </div>
