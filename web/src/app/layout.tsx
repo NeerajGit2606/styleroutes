@@ -9,6 +9,7 @@ import { CartProvider } from "@/context/CartContext";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AddedToast } from "@/components/AddedToast";
 import { EnquiryModal } from "@/components/EnquiryModal";
+import { ChatWidget } from "@/components/ChatWidget";
 import { SITE_URL, SUPPORT_ADDRESS, SUPPORT_EMAIL, SUPPORT_PHONE_TEL } from "@/lib/config";
 
 const geistSans = Geist({
@@ -128,6 +129,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <CartDrawer />
           <AddedToast />
           <EnquiryModal />
+          <ChatWidget />
         </CartProvider>
       </body>
     </html>
