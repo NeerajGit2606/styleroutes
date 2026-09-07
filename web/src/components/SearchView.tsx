@@ -13,6 +13,7 @@ export function SearchView({ products }: { products: ApiProduct[] }) {
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [semanticResults, setSemanticResults] = useState<ApiProduct[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchFailed, setSearchFailed] = useState(false);
   const requestId = useRef(0);
 
   // Instant keyword match — shown immediately, before the semantic search
@@ -33,6 +34,7 @@ export function SearchView({ products }: { products: ApiProduct[] }) {
 
     const id = ++requestId.current;
     setSemanticResults(null); // fall back to instant keyword results until this query's semantic results land
+    setSearchFailed(false);
     setSearching(true);
     const timer = setTimeout(async () => {
       try {
@@ -41,9 +43,11 @@ export function SearchView({ products }: { products: ApiProduct[] }) {
         if (res.ok) {
           const data = await res.json();
           setSemanticResults(data.products);
+        } else {
+          setSearchFailed(true);
         }
       } catch {
-        // Network hiccup — keyword results below still cover the search.
+        if (id === requestId.current) setSearchFailed(true);
       } finally {
         if (id === requestId.current) setSearching(false);
       }
@@ -75,7 +79,13 @@ export function SearchView({ products }: { products: ApiProduct[] }) {
         <p className="mt-4 text-xs font-bold uppercase tracking-widest text-neutral-400">Searching…</p>
       )}
 
-      {query.trim() && !searching && results.length === 0 && (
+      {query.trim() && !searching && results.length === 0 && searchFailed && (
+        <p className="mt-10 text-sm font-bold text-neutral-500">
+          Smart search is temporarily busy — try again in a moment, or search a specific word like a color or category.
+        </p>
+      )}
+
+      {query.trim() && !searching && results.length === 0 && !searchFailed && (
         <p className="mt-10 text-sm font-bold text-neutral-500">No products found for &ldquo;{query}&rdquo;.</p>
       )}
 
