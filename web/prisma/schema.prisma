@@ -19,6 +19,7 @@ model Product {
   description String
   sizes       Json
   createdAt   DateTime @default(now()) @map("created_at")
+  embedding   Unsupported("vector(1024)")?
 
   @@map("products")
 }

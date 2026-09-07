@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { serializeProduct } from "@/lib/serialize-product";
+import { syncProductEmbedding } from "@/lib/product-embeddings";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,6 +35,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     where: { id: Number(id) },
     data: { name, category, ageGroup, price, oldPrice: oldPrice ?? null, image, badge: badge || null, description, sizes },
   });
+
+  try {
+    await syncProductEmbedding(product);
+  } catch (error) {
+    // Search embedding sync shouldn't block saving the product itself.
+    console.error("Embedding sync failed for product", product.id, error);
+  }
 
   return NextResponse.json({ product: serializeProduct(product) });
 }

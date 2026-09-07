@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { serializeProduct } from "@/lib/serialize-product";
+import { syncProductEmbedding } from "@/lib/product-embeddings";
 
 export async function GET(request: NextRequest) {
   const ageGroup = request.nextUrl.searchParams.get("ageGroup");
@@ -42,6 +43,13 @@ export async function POST(request: NextRequest) {
       sizes,
     },
   });
+
+  try {
+    await syncProductEmbedding(product);
+  } catch (error) {
+    // Search embedding sync shouldn't block saving the product itself.
+    console.error("Embedding sync failed for product", product.id, error);
+  }
 
   return NextResponse.json({ product: serializeProduct(product) }, { status: 201 });
 }

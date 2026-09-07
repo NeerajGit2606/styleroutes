@@ -4,19 +4,57 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search as SearchIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { money } from "@/lib/products";
 import type { ApiProduct } from "@/lib/serialize-product";
 
 export function SearchView({ products }: { products: ApiProduct[] }) {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const [semanticResults, setSemanticResults] = useState<ApiProduct[] | null>(null);
+  const [searching, setSearching] = useState(false);
+  const requestId = useRef(0);
 
-  const results = useMemo(() => {
+  // Instant keyword match — shown immediately, before the semantic search
+  // (which needs a network round trip) comes back.
+  const keywordResults = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return [];
     return products.filter((product) => product.name.toLowerCase().includes(term) || product.category.toLowerCase().includes(term));
   }, [query, products]);
+
+  useEffect(() => {
+    const term = query.trim();
+    if (term.length < 2) {
+      setSemanticResults(null);
+      setSearching(false);
+      return;
+    }
+
+    const id = ++requestId.current;
+    setSemanticResults(null); // fall back to instant keyword results until this query's semantic results land
+    setSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search/semantic?q=${encodeURIComponent(term)}`);
+        if (id !== requestId.current) return; // a newer keystroke superseded this request
+        if (res.ok) {
+          const data = await res.json();
+          setSemanticResults(data.products);
+        }
+      } catch {
+        // Network hiccup — keyword results below still cover the search.
+      } finally {
+        if (id === requestId.current) setSearching(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Semantic results (meaning-based) once they've loaded; keyword match as
+  // the instant fallback while waiting, or if the semantic search failed.
+  const results = semanticResults ?? keywordResults;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12">
@@ -33,7 +71,11 @@ export function SearchView({ products }: { products: ApiProduct[] }) {
         />
       </div>
 
-      {query.trim() && results.length === 0 && (
+      {query.trim() && searching && semanticResults === null && (
+        <p className="mt-4 text-xs font-bold uppercase tracking-widest text-neutral-400">Searching…</p>
+      )}
+
+      {query.trim() && !searching && results.length === 0 && (
         <p className="mt-10 text-sm font-bold text-neutral-500">No products found for &ldquo;{query}&rdquo;.</p>
       )}
 
