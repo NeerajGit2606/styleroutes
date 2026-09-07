@@ -23,11 +23,25 @@ Model: **Claude Haiku 4.5** (`claude-haiku-4-5`) — cheapest tier, plenty capab
 
 ---
 
-## Step 2 — Semantic Product Search (planned)
+## Step 2 — Semantic Product Search ✅ Live
 
-**What it will do**: Replace/augment the product search so a query like "warm winter clothes" surfaces relevant products even without an exact keyword match.
+**What it does**: Search page (`/search`) now ranks results by *meaning*, not just exact keyword match. A query like "warm clothes for winter" correctly surfaces "Cozy Jogger Pants" and "Soft Fleece Sleepsuit" — neither product name/description contains the words "warm" or "winter". Instant keyword results show first (zero latency); semantic results replace them ~350ms later once the ranked search comes back.
 
-**Concepts to learn**: embeddings (turning text into vectors that capture meaning), `pgvector` (Postgres extension for storing/searching those vectors — reuses the existing Postgres DB, no new service needed), similarity search.
+**Files**:
+- [`web/prisma/schema.prisma`](../web/prisma/schema.prisma) — added `embedding Unsupported("vector(1024)")?` on `Product`
+- [`web/src/lib/voyage.ts`](../web/src/lib/voyage.ts) — calls Voyage AI's embeddings API (Anthropic's recommended partner; Claude itself has no embeddings endpoint)
+- [`web/src/lib/product-embeddings.ts`](../web/src/lib/product-embeddings.ts) — writes/backfills embeddings via raw SQL (Prisma can't type-check an `Unsupported` column)
+- [`web/src/app/api/search/semantic/route.ts`](../web/src/app/api/search/semantic/route.ts) — embeds the query, ranks products by pgvector cosine distance (`<=>`)
+- [`web/src/components/SearchView.tsx`](../web/src/components/SearchView.tsx) — debounced fetch, semantic results replace the instant keyword fallback
+- New products get embedded automatically on create/update (`api/products/route.ts`, `api/products/[id]/route.ts`); `scripts/backfill-embeddings.ts` catches up any that predate this feature or were bulk-imported
+
+**Concepts learned**:
+- **Embeddings**: text → a list of numbers (a vector) that captures meaning, so "cozy jogger" and "warm winter clothes" land close together in that number-space even sharing no words.
+- **`input_type: "document"` vs `"query"`**: Voyage embeds a short search query and a longer product description slightly differently for better matching — this is called *asymmetric retrieval*.
+- **pgvector**: a Postgres extension that stores vectors as a native column type and can sort by distance (`<=>` = cosine distance) directly in SQL — no separate vector database service needed since the app already runs on Postgres.
+- **Batching**: embedding one product at a time hit Voyage's 3-requests/minute limit (no payment method on file yet); batching all texts into a single API call fixed it — a real lesson in API rate limits.
+
+**Cost**: ~₹0 so far (well within Voyage's free tier for a 23-product catalog; ongoing cost is one embedding call per product save, negligible).
 
 ---
 
