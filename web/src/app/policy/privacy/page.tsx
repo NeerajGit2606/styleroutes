@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { PolicyPage, PolicySection } from "@/components/PolicyPage";
 import { SUPPORT_EMAIL } from "@/lib/config";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — StyleRoute",
+  description: "How StyleRoute collects, uses, and protects your personal information.",
+  alternates: { canonical: "/policy/privacy" },
+};
 
 export default function PrivacyPolicyPage() {
   return (

@@ -6,6 +6,7 @@ import { ArrowRight, Star } from "lucide-react";
 export const metadata: Metadata = {
   title: "About Us — StyleRoute",
   description: "The story behind StyleRoute — comfort-first kidswear built for real, everyday adventures.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

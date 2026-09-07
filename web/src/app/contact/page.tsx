@@ -5,6 +5,7 @@ import { SUPPORT_ADDRESS_TEXT, SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_TEL }
 export const metadata: Metadata = {
   title: "Contact Us — StyleRoute",
   description: "Questions about an order, sizing, or anything else — get in touch with the StyleRoute team.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

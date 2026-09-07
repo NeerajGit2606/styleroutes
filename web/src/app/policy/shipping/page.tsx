@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { PolicyPage, PolicySection } from "@/components/PolicyPage";
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, money } from "@/lib/products";
+
+export const metadata: Metadata = {
+  title: "Shipping Policy — StyleRoute",
+  description: "Delivery areas, timelines, and shipping fees for StyleRoute orders.",
+  alternates: { canonical: "/policy/shipping" },
+};
 
 export default function ShippingPolicyPage() {
   return (

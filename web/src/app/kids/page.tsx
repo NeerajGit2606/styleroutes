@@ -7,6 +7,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 export const metadata: Metadata = {
   title: "Kids Clothing (4-14 Yrs) — StyleRoute",
   description: "Shop comfortable, stylish clothing for kids aged 4-14 years at StyleRoute.",
+  alternates: { canonical: "/kids" },
 };
 
 // Product list is admin-editable, so this can't be statically generated.

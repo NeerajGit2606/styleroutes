@@ -8,6 +8,7 @@ import { serializeProduct } from "@/lib/serialize-product";
 export const metadata: Metadata = {
   title: "Looks — StyleRoute",
   description: "Curated outfit ideas, put together piece by piece so you don't have to.",
+  alternates: { canonical: "/looks" },
 };
 
 // Product list is admin-editable, so this can't be statically generated.

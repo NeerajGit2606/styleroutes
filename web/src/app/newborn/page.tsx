@@ -7,6 +7,7 @@ import { CategoryGrid } from "@/components/CategoryGrid";
 export const metadata: Metadata = {
   title: "Newborn Clothing (0-36 Months) — StyleRoute",
   description: "Soft, comfortable everyday wear for newborns and babies up to 36 months at StyleRoute.",
+  alternates: { canonical: "/newborn" },
 };
 
 // Product list is admin-editable, so this can't be statically generated.

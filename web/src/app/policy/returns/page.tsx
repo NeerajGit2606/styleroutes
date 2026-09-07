@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { PolicyPage, PolicySection } from "@/components/PolicyPage";
 import { SUPPORT_EMAIL } from "@/lib/config";
+
+export const metadata: Metadata = {
+  title: "Return & Exchange Policy — StyleRoute",
+  description: "StyleRoute's exchange window, conditions, and process for returns.",
+  alternates: { canonical: "/policy/returns" },
+};
 
 export default function ReturnsPolicyPage() {
   return (
