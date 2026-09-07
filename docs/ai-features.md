@@ -45,16 +45,32 @@ Model: **Claude Haiku 4.5** (`claude-haiku-4-5`) — cheapest tier, plenty capab
 
 ---
 
-## Step 3 — AI Shopping Assistant / RAG chatbot (planned)
+## Step 3 — AI Shopping Assistant (RAG chatbot) ✅ Live
 
-**What it will do**: A chat widget where a customer asks something like "suggest a gift for a 3-year-old boy" and gets a natural-language recommendation grounded in the actual product catalog (not hallucinated).
+**What it does**: A chat widget (bottom-left, every page except `/admin`) where a customer asks something like "something warm for a newborn" and gets a natural-language recommendation grounded in the real catalog, with clickable product cards — not hallucinated products.
 
-**Concepts to learn**: RAG (Retrieval-Augmented Generation) — retrieve relevant products via the Step 2 vector search, then hand them to Claude as context to generate a grounded answer; function calling (letting the AI trigger real actions, e.g. add-to-cart); reuses the same `pgvector` infrastructure from Step 2.
+**Files**:
+- [`web/src/app/api/chat/route.ts`](../web/src/app/api/chat/route.ts) — the RAG pipeline
+- [`web/src/components/ChatWidget.tsx`](../web/src/components/ChatWidget.tsx) — floating chat UI
 
-**Why this order**: Step 2 builds the vector infra Step 3 depends on, so nothing in Step 3 is built twice.
+**How the RAG pipeline works (Retrieval-Augmented Generation)**:
+1. **Retrieve**: embed the customer's message (Voyage, same as Step 2), find the top 8 most relevant products via pgvector cosine similarity.
+2. **Augment**: hand those 8 products (id, name, category, price, description) to Claude as context in the system prompt, with an explicit instruction to recommend *only* from that list.
+3. **Generate**: Claude (Haiku 4.5) replies with a structured response — `{ reply: string, recommended_ids: number[] }`, enforced via a Zod schema (`output_config.format`) so the response always parses cleanly instead of scraping free text.
+4. **Guard against hallucination**: even though the prompt says "only recommend from the list," the server re-checks `recommended_ids` against the actual retrieved candidate ids and silently drops anything that doesn't match — a model can't be fully trusted to follow instructions, so the code enforces it too.
+
+**Concepts learned**:
+- **RAG** = Retrieval (search) + Augmented (inject real data into the prompt) + Generation (LLM writes the answer) — this is *why* the assistant can't invent a product that doesn't exist: it's never asked to write facts from memory, only to talk about what's in the retrieved list.
+- **Structured outputs**: `client.messages.parse()` + a Zod schema guarantees the model's response deserializes into a typed object, instead of parsing free-form text and hoping for the best.
+- **Defense in depth**: never trust the model's output for anything that touches real data (ids, prices) — validate/filter server-side even when the prompt already asked nicely.
+- **UI layering gotcha**: the site's existing "stay in touch" popup uses a full-screen overlay above the chat button's z-index — not a bug, just something to route around (or dismiss first) when testing.
+
+**Cost**: a chat reply costs roughly the same as one Step-1 description generation call (~₹1-2), plus one embedding call (~₹0). Realistic monthly cost for portfolio-level demo traffic: well under ₹50.
 
 ---
 
-## Portfolio pitch (once all 3 are live)
+## Portfolio pitch (all 3 steps live)
 
-"I built three AI features end-to-end on a live e-commerce site — from a single LLM API call, through embeddings-based semantic search, to a full RAG shopping assistant — covering LLM integration, vector databases, and retrieval-augmented generation." Live demo links + this repo double as proof of work for freelance bids.
+"I built three AI features end-to-end on a live e-commerce site — from a single LLM API call, through embeddings-based semantic search, to a full RAG shopping assistant with structured outputs and hallucination guards — covering LLM integration, vector databases, retrieval-augmented generation, and defensive AI engineering." Live demo links (styleroute.co.in — search, and the chat bubble bottom-left) + this repo double as proof of work for freelance bids.
+
+**Possible next steps** (not built, worth mentioning as roadmap in interviews): function calling so the assistant can add a recommended item straight to the cart; conversation memory across sessions; an eval set to measure recommendation quality over time.
