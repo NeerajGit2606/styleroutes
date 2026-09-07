@@ -40,6 +40,7 @@ export function ProductForm({ product }: { product?: ApiProduct }) {
   const [form, setForm] = useState<FormState>(toFormState(product));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const updateField = (field: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((f) => ({ ...f, [field]: event.target.value }));
@@ -89,6 +90,32 @@ export function ProductForm({ product }: { product?: ApiProduct }) {
     router.refresh();
   };
 
+  const handleGenerateDescription = async () => {
+    if (!form.name || !form.category || !form.ageGroup) {
+      setError("Fill in name, category, and age group first.");
+      return;
+    }
+    setError("");
+    setGenerating(true);
+    const res = await fetch("/api/admin/generate-description", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        category: form.category,
+        ageGroup: form.ageGroup,
+        sizes: form.sizes,
+      }),
+    });
+    setGenerating(false);
+    if (!res.ok) {
+      setError("Couldn't generate a description. Try again.");
+      return;
+    }
+    const data = await res.json();
+    setForm((f) => ({ ...f, description: data.description }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="mt-9 max-w-2xl space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -125,7 +152,17 @@ export function ProductForm({ product }: { product?: ApiProduct }) {
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-neutral-500">Description</label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="block text-xs font-bold uppercase tracking-widest text-neutral-500">Description</label>
+          <button
+            type="button"
+            onClick={handleGenerateDescription}
+            disabled={generating}
+            className="text-xs font-black uppercase tracking-wider text-amber-700 hover:text-amber-900 disabled:opacity-50"
+          >
+            {generating ? "Generating…" : "✨ Generate with AI"}
+          </button>
+        </div>
         <textarea
           value={form.description}
           onChange={updateField("description")}
